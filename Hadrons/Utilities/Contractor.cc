@@ -73,6 +73,8 @@ namespace Contractor
                                         std::string, terms,
                                         std::vector<std::string>, times,
                                         std::string, translations,
+					unsigned int, min_t,
+					unsigned int, max_t,
                                         bool, translationAverage);
     };
 
@@ -237,221 +239,221 @@ inline std::ostream & operator<< (std::ostream& s, const Bytes &&b)
 
 int main(int argc, char* argv[])
 {
-    // parse command line
-    std::string   parFilename;
+  // parse command line
+  std::string   parFilename;
 
-    if (argc != 2)
-    {
-        std::cerr << "usage: " << argv[0] << " <parameter file>";
-        std::cerr << std::endl;
+  if (argc != 2)
+  {
+    std::cerr << "usage: " << argv[0] << " <parameter file>";
+    std::cerr << std::endl;
         
-        return EXIT_FAILURE;
-    }
-    parFilename = argv[1];
+    return EXIT_FAILURE;
+  }
+  parFilename = argv[1];
 
-    // parse parameter file
-    ContractorPar par;
-    //    unsigned int  nMat,nCont;
-    XmlReader     reader(parFilename);
+  // parse parameter file
+  ContractorPar par;
+  //    unsigned int  nMat,nCont;
+  XmlReader     reader(parFilename);
 
-    read(reader, "global",    par.global);
-    read(reader, "a2aMatrix", par.a2aMatrix);
-    read(reader, "product",   par.product);
-    //    nMat  = par.a2aMatrix.size();
-    //    nCont = par.product.size();
+  read(reader, "global",    par.global);
+  read(reader, "a2aMatrix", par.a2aMatrix);
+  read(reader, "product",   par.product);
+  //    nMat  = par.a2aMatrix.size();
+  //    nCont = par.product.size();
 
-    // create diskvectors
-    std::map<std::string, EigenDiskVector<ComplexD>> a2aMat;
-    //    unsigned int                                     cacheSize;
+  // create diskvectors
+  std::map<std::string, EigenDiskVector<ComplexD>> a2aMat;
+  //    unsigned int                                     cacheSize;
 
+  for (auto &p: par.a2aMatrix)
+  {
+    std::string dirName = par.global.diskVectorDir + "/" + p.name;
+
+    a2aMat.emplace(p.name, EigenDiskVector<ComplexD>(dirName, par.global.nt, p.cacheSize));
+  }
+
+  // trajectory loop
+  for (unsigned int traj = par.global.trajCounter.start; 
+       traj < par.global.trajCounter.end; traj += par.global.trajCounter.step)
+  {
+    std::cout << ":::::::: Trajectory " << traj << std::endl;
+
+    // load data
     for (auto &p: par.a2aMatrix)
     {
-        std::string dirName = par.global.diskVectorDir + "/" + p.name;
+      std::string filename = p.file;
+      double      t;
+      //	    double  size;
 
-        a2aMat.emplace(p.name, EigenDiskVector<ComplexD>(dirName, par.global.nt, p.cacheSize));
+      tokenReplace(filename, "traj", traj);
+      std::cout << "======== Loading '" << filename << "'" << std::endl;
+
+      A2AMatrixIo<HADRONS_A2AM_IO_TYPE> a2aIo(filename, p.dataset, par.global.nt);
+
+      a2aIo.load(a2aMat.at(p.name), &t);
+      std::cout << "Read " << a2aIo.getSize() << " bytes in " << t/1.0e6 
+		<< " sec, " << a2aIo.getSize()/t*1.0e6/1024/1024 << " MB/s" << std::endl;
     }
 
-    // trajectory loop
-    for (unsigned int traj = par.global.trajCounter.start; 
-         traj < par.global.trajCounter.end; traj += par.global.trajCounter.step)
+    // contract
+    //EigenDiskVector<ComplexD>::Matrix buf;
+
+    for (auto &p: par.product)
     {
-        std::cout << ":::::::: Trajectory " << traj << std::endl;
+      std::vector<std::string>               term = strToVec<std::string>(p.terms);
+      std::vector<std::set<unsigned int>>    times;
+      std::vector<std::vector<unsigned int>> timeSeq;
+      std::set<unsigned int>                 translations;
+      std::vector<A2AMatrixTr<ComplexD>>     lastTerm(par.global.nt);
+      A2AMatrix<ComplexD>                    prod, buf, tmp;
+      TimerArray                             tAr;
+      double                                 fusec, busec, flops, bytes;
+      //	    double  tusec;
+      Contractor::CorrelatorResult           result;             
 
-        // load data
-        for (auto &p: par.a2aMatrix)
-        {
-            std::string filename = p.file;
-            double      t;
-	    //	    double  size;
+      tAr.startTimer("Total");
+      std::cout << "======== Contraction tr(";
+      for (unsigned int g = 0; g < term.size(); ++g)
+      {
+	std::cout << term[g] << ((g == term.size() - 1) ? ')' : '*');
+      }
+      std::cout << std::endl;
+      if (term.size() != p.times.size() + 1)
+      {
+	HADRONS_ERROR(Size, "number of terms (" + std::to_string(term.size()) 
+		      + ") different from number of times (" 
+		      + std::to_string(p.times.size() + 1) + ")");
+      }
+      for (auto &s: p.times)
+      {
+	times.push_back(parseTimeRange(s, par.global.nt));
+      }
+      for (auto &m: par.a2aMatrix)
+      {
+	if (std::find(result.a2aMatrix.begin(), result.a2aMatrix.end(), m) == result.a2aMatrix.end())
+	{
+	  result.a2aMatrix.push_back(m);
+	  tokenReplace(result.a2aMatrix.back().file, "traj", traj);
+	}
+      }
+      result.contraction = p;
+      result.correlator.resize(par.global.nt, 0.);
 
-            tokenReplace(filename, "traj", traj);
-            std::cout << "======== Loading '" << filename << "'" << std::endl;
+      translations = parseTimeRange(p.translations, par.global.nt);
+      makeTimeSeq(timeSeq, times);
+      std::cout << timeSeq.size()*translations.size()*(term.size() - 2) << " A*B, "
+		<< timeSeq.size()*translations.size()*par.global.nt << " tr(A*B)"
+		<< std::endl;
 
-            A2AMatrixIo<HADRONS_A2AM_IO_TYPE> a2aIo(filename, p.dataset, par.global.nt);
+      std::cout << "* Caching transposed last term" << std::endl;
+      for (unsigned int t = 0; t < par.global.nt; ++t)
+      {
+	tAr.startTimer("Disk vector overhead");
+	const A2AMatrix<ComplexD> &ref = a2aMat.at(term.back())[t];
+	tAr.stopTimer("Disk vector overhead");
 
-            a2aIo.load(a2aMat.at(p.name), &t);
-            std::cout << "Read " << a2aIo.getSize() << " bytes in " << t/1.0e6 
-                    << " sec, " << a2aIo.getSize()/t*1.0e6/1024/1024 << " MB/s" << std::endl;
-        }
+	tAr.startTimer("Transpose caching");
+	lastTerm[t].resize(ref.rows(), ref.cols());
+	thread_for( j,ref.cols(),{
+	  for (unsigned int i = 0; i < ref.rows(); ++i)
+	  {
+	    lastTerm[t](i, j) = ref(i, j);
+	  }
+	});
+	tAr.stopTimer("Transpose caching");
+      }
+      bytes = par.global.nt*lastTerm[0].rows()*lastTerm[0].cols()*sizeof(ComplexD);
+      std::cout << Sec(tAr.getDTimer("Transpose caching")) << " " 
+		<< Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
+      for (unsigned int i = 0; i < timeSeq.size(); ++i)
+      {
+	unsigned int dti = 0;
+	auto         &t = timeSeq[i];
 
-        // contract
-        EigenDiskVector<ComplexD>::Matrix buf;
-
-        for (auto &p: par.product)
-        {
-            std::vector<std::string>               term = strToVec<std::string>(p.terms);
-            std::vector<std::set<unsigned int>>    times;
-            std::vector<std::vector<unsigned int>> timeSeq;
-            std::set<unsigned int>                 translations;
-            std::vector<A2AMatrixTr<ComplexD>>     lastTerm(par.global.nt);
-            A2AMatrix<ComplexD>                    prod, buf, tmp;
-            TimerArray                             tAr;
-            double                                 fusec, busec, flops, bytes;
-	    //	    double  tusec;
-            Contractor::CorrelatorResult           result;             
-
-            tAr.startTimer("Total");
-            std::cout << "======== Contraction tr(";
-            for (unsigned int g = 0; g < term.size(); ++g)
-            {
-                std::cout << term[g] << ((g == term.size() - 1) ? ')' : '*');
-            }
-            std::cout << std::endl;
-            if (term.size() != p.times.size() + 1)
-            {
-                HADRONS_ERROR(Size, "number of terms (" + std::to_string(term.size()) 
-                            + ") different from number of times (" 
-                            + std::to_string(p.times.size() + 1) + ")");
-            }
-            for (auto &s: p.times)
-            {
-                times.push_back(parseTimeRange(s, par.global.nt));
-            }
-            for (auto &m: par.a2aMatrix)
-            {
-                if (std::find(result.a2aMatrix.begin(), result.a2aMatrix.end(), m) == result.a2aMatrix.end())
-                {
-                    result.a2aMatrix.push_back(m);
-                    tokenReplace(result.a2aMatrix.back().file, "traj", traj);
-                }
-            }
-            result.contraction = p;
-            result.correlator.resize(par.global.nt, 0.);
-
-            translations = parseTimeRange(p.translations, par.global.nt);
-            makeTimeSeq(timeSeq, times);
-            std::cout << timeSeq.size()*translations.size()*(term.size() - 2) << " A*B, "
-                    << timeSeq.size()*translations.size()*par.global.nt << " tr(A*B)"
-                    << std::endl;
-
-            std::cout << "* Caching transposed last term" << std::endl;
-            for (unsigned int t = 0; t < par.global.nt; ++t)
-            {
-                tAr.startTimer("Disk vector overhead");
-                const A2AMatrix<ComplexD> &ref = a2aMat.at(term.back())[t];
-                tAr.stopTimer("Disk vector overhead");
-
-                tAr.startTimer("Transpose caching");
-                lastTerm[t].resize(ref.rows(), ref.cols());
-                thread_for( j,ref.cols(),{
-                  for (unsigned int i = 0; i < ref.rows(); ++i)
-                  {
-                      lastTerm[t](i, j) = ref(i, j);
-                  }
-		});
-                tAr.stopTimer("Transpose caching");
-            }
-            bytes = par.global.nt*lastTerm[0].rows()*lastTerm[0].cols()*sizeof(ComplexD);
-            std::cout << Sec(tAr.getDTimer("Transpose caching")) << " " 
-                      << Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
-            for (unsigned int i = 0; i < timeSeq.size(); ++i)
-            {
-                unsigned int dti = 0;
-                auto         &t = timeSeq[i];
-
-                result.times = t;
-                for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
-                {
-                    result.correlator[tLast] = 0.;
-                }
-                for (auto &dt: translations)
-                {
-                    std::cout << "* Step " << i*translations.size() + dti + 1
-                            << "/" << timeSeq.size()*translations.size()
-                            << " -- positions= " << t << ", dt= " << dt << std::endl;
-                    if (term.size() > 2)
-                    {
-                        std::cout << std::setw(8) << "products";
-                    }
-                    flops  = 0.;
-                    bytes  = 0.;
-                    fusec  = tAr.getDTimer("A*B algebra");
-                    busec  = tAr.getDTimer("A*B total");
-                    tAr.startTimer("Linear algebra");
-                    tAr.startTimer("Disk vector overhead");
-                    prod = a2aMat.at(term[0])[TIME_MOD(t[0] + dt)];
-                    tAr.stopTimer("Disk vector overhead");
-                    for (unsigned int j = 1; j < term.size() - 1; ++j)
-                    {
-                        tAr.startTimer("Disk vector overhead");
-                        const A2AMatrix<ComplexD> &ref = a2aMat.at(term[j])[TIME_MOD(t[j] + dt)];
-                        tAr.stopTimer("Disk vector overhead");
+	result.times = t;
+	for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
+	{
+	  result.correlator[tLast] = 0.;
+	}
+	for (auto &dt: translations)
+	{
+	  std::cout << "* Step " << i*translations.size() + dti + 1
+		    << "/" << timeSeq.size()*translations.size()
+		    << " -- positions= " << t << ", dt= " << dt << std::endl;
+	  if (term.size() > 2)
+	  {
+	    std::cout << std::setw(8) << "products";
+	  }
+	  flops  = 0.;
+	  bytes  = 0.;
+	  fusec  = tAr.getDTimer("A*B algebra");
+	  busec  = tAr.getDTimer("A*B total");
+	  tAr.startTimer("Linear algebra");
+	  tAr.startTimer("Disk vector overhead");
+	  prod = a2aMat.at(term[0])[TIME_MOD(t[0] + dt)];
+	  tAr.stopTimer("Disk vector overhead");
+	  for (unsigned int j = 1; j < term.size() - 1; ++j)
+	  {
+	    tAr.startTimer("Disk vector overhead");
+	    const A2AMatrix<ComplexD> &ref = a2aMat.at(term[j])[TIME_MOD(t[j] + dt)];
+	    tAr.stopTimer("Disk vector overhead");
                         
-                        tAr.startTimer("A*B total");
-                        tAr.startTimer("A*B algebra");
-                        A2AContraction::mul(tmp, prod, ref);
-                        tAr.stopTimer("A*B algebra");
-                        flops += A2AContraction::mulFlops(prod, ref);
-                        prod   = tmp;
-                        tAr.stopTimer("A*B total");
-                        bytes += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
-                    }
-                    if (term.size() > 2)
-                    {
-                        std::cout << Sec(tAr.getDTimer("A*B total") - busec) << " "
-                                << Flops(flops, tAr.getDTimer("A*B algebra") - fusec) << " " 
-                                << Bytes(bytes, tAr.getDTimer("A*B total") - busec) << std::endl;
-                    }
-                    std::cout << std::setw(8) << "traces";
-                    flops  = 0.;
-                    bytes  = 0.;
-                    fusec  = tAr.getDTimer("tr(A*B)");
-                    busec  = tAr.getDTimer("tr(A*B)");
-                    for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
-                    {
-                        tAr.startTimer("tr(A*B)");
-                        A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tLast]);
-                        tAr.stopTimer("tr(A*B)");
-                        flops += A2AContraction::accTrMulFlops(prod, lastTerm[tLast]);
-                        bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
-                    }
-                    tAr.stopTimer("Linear algebra");
-                    std::cout << Sec(tAr.getDTimer("tr(A*B)") - busec) << " "
-                            << Flops(flops, tAr.getDTimer("tr(A*B)") - fusec) << " " 
-                            << Bytes(bytes, tAr.getDTimer("tr(A*B)") - busec) << std::endl;
-                    if (!p.translationAverage)
-                    {
-                        saveCorrelator(result, par.global.output, dt, traj);
-                        for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
-                        {
-                            result.correlator[tLast] = 0.;
-                        }
-                    }
-                    dti++;
-                }
-                if (p.translationAverage)
-                {
-                    for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
-                    {
-                        result.correlator[tLast] /= translations.size();
-                    }
-                    saveCorrelator(result, par.global.output, 0, traj);
-                }
-            }
-            tAr.stopTimer("Total");
-            printTimeProfile(tAr.getTimings(), tAr.getTimer("Total"));
-        }
+	    tAr.startTimer("A*B total");
+	    tAr.startTimer("A*B algebra");
+	    A2AContraction::mul(tmp, prod, ref);
+	    tAr.stopTimer("A*B algebra");
+	    flops += A2AContraction::mulFlops(prod, ref);
+	    prod   = tmp;
+	    tAr.stopTimer("A*B total");
+	    bytes += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
+	  }
+	  if (term.size() > 2)
+	  {
+	    std::cout << Sec(tAr.getDTimer("A*B total") - busec) << " "
+		      << Flops(flops, tAr.getDTimer("A*B algebra") - fusec) << " "
+		      << Bytes(bytes, tAr.getDTimer("A*B total") - busec) << std::endl;
+	  }
+	  std::cout << std::setw(8) << "traces";
+	  flops  = 0.;
+	  bytes  = 0.;
+	  fusec  = tAr.getDTimer("tr(A*B)");
+	  busec  = tAr.getDTimer("tr(A*B)");
+	  for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
+	  {
+	    tAr.startTimer("tr(A*B)");
+	    A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[TIME_MOD(tLast)]);
+	    tAr.stopTimer("tr(A*B)");
+	    flops += A2AContraction::accTrMulFlops(prod, lastTerm[TIME_MOD(tLast)]);
+	    bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
+	  }
+	  tAr.stopTimer("Linear algebra");
+	  std::cout << Sec(tAr.getDTimer("tr(A*B)") - busec) << " "
+		    << Flops(flops, tAr.getDTimer("tr(A*B)") - fusec) << " " 
+		    << Bytes(bytes, tAr.getDTimer("tr(A*B)") - busec) << std::endl;
+	  if (!p.translationAverage)
+	  {
+	    saveCorrelator(result, par.global.output, dt, traj);
+	    for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
+	    {
+	      result.correlator[tLast] = 0.;
+	    }
+	  }
+	  dti++;
+	}
+	if (p.translationAverage)
+	{
+	  for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
+	  {
+	    result.correlator[tLast] /= translations.size();
+	  }
+	  saveCorrelator(result, par.global.output, 0, traj);
+	}
+      }
+      tAr.stopTimer("Total");
+      printTimeProfile(tAr.getTimings(), tAr.getTimer("Total"));
     }
+  }
     
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

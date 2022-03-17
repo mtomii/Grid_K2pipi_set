@@ -330,6 +330,7 @@ void GlobalSharedMemory::OptimalCommunicatorSharedMemory(const Coordinate &proce
   for(int i=0;i<ndimension;i++){
     Nprocessors*=processors[i];
   }
+  std::cout << "CHECK: " << WorldSize << " " << Nprocessors << std::endl;
   assert(WorldSize==Nprocessors);
 
   ////////////////////////////////////////////////////////////////

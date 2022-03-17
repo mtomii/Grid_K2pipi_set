@@ -8,8 +8,12 @@ modules_cc =\
   Modules/MContraction/A2AAslashField.cc \
   Modules/MContraction/A2AFourQuarkContraction.cc \
   Modules/MContraction/A2ALoop.cc \
+  Modules/MContraction/A2AMonsterLoop.cc \
+  Modules/MContraction/A2ACoarseGrid.cc \
   Modules/MContraction/A2AMesonField.cc \
-  Modules/MContraction/Baryon.cc \
+  Modules/MContraction/MultMesonField.cc \
+  Modules/MContraction/A2AExtendedMesonField.cc \
+  Modules/MContraction/A2AMonsterMesonField.cc \
   Modules/MContraction/DiscLoop.cc \
   Modules/MContraction/Gamma3pt.cc \
   Modules/MContraction/Meson.cc \
@@ -37,6 +41,7 @@ modules_cc =\
   Modules/MGauge/UnitEm.cc \
   Modules/MIO/LoadA2AMatrixDiskVector.cc \
   Modules/MIO/LoadA2AVectors.cc \
+  Modules/MIO/LoadBinnedA2AVecs.cc \
   Modules/MIO/LoadBinary.cc \
   Modules/MIO/LoadCoarseEigenPack.cc \
   Modules/MIO/LoadCosmHol.cc \
@@ -66,6 +71,7 @@ modules_cc =\
   Modules/MSink/Smear.cc \
   Modules/MSolver/A2AAslashVectors.cc \
   Modules/MSolver/A2AVectors.cc \
+  Modules/MSolver/A2AVectorsV.cc \
   Modules/MSolver/LocalCoherenceLanczos.cc \
   Modules/MSolver/MixedPrecisionRBPrecCG.cc \
   Modules/MSolver/RBPrecCG.cc \
@@ -81,7 +87,8 @@ modules_cc =\
   Modules/MSource/Wall.cc \
   Modules/MSource/Z2.cc \
   Modules/MUtilities/PrecisionCast.cc \
-  Modules/MUtilities/RandomVectors.cc
+  Modules/MUtilities/RandomVectors.cc \
+  Modules/MUtilities/A2ACovariantSmear.cc
 
 modules_hpp =\
   Modules/MAction/DWF.hpp \
@@ -93,8 +100,12 @@ modules_hpp =\
   Modules/MContraction/A2AAslashField.hpp \
   Modules/MContraction/A2AFourQuarkContraction.hpp \
   Modules/MContraction/A2ALoop.hpp \
+  Modules/MContraction/A2AMonsterLoop.hpp \
+  Modules/MContraction/A2ACoarseGrid.hpp \
   Modules/MContraction/A2AMesonField.hpp \
-  Modules/MContraction/Baryon.hpp \
+  Modules/MContraction/MultMesonField.hpp \
+  Modules/MContraction/A2AExtendedMesonField.hpp \
+  Modules/MContraction/A2AMonsterMesonField.hpp \
   Modules/MContraction/DiscLoop.hpp \
   Modules/MContraction/Gamma3pt.hpp \
   Modules/MContraction/Meson.hpp \
@@ -123,6 +134,7 @@ modules_hpp =\
   Modules/MGauge/Unit.hpp \
   Modules/MIO/LoadA2AMatrixDiskVector.hpp \
   Modules/MIO/LoadA2AVectors.hpp \
+  Modules/MIO/LoadBinnedA2AVecs.hpp \
   Modules/MIO/LoadBinary.hpp \
   Modules/MIO/LoadCoarseEigenPack.hpp \
   Modules/MIO/LoadCosmHol.hpp \
@@ -154,6 +166,7 @@ modules_hpp =\
   Modules/MSink/Smear.hpp \
   Modules/MSolver/A2AAslashVectors.hpp \
   Modules/MSolver/A2AVectors.hpp \
+  Modules/MSolver/A2AVectorsV.hpp \
   Modules/MSolver/Guesser.hpp \
   Modules/MSolver/LocalCoherenceLanczos.hpp \
   Modules/MSolver/MixedPrecisionRBPrecCG.hpp \
@@ -170,5 +183,6 @@ modules_hpp =\
   Modules/MSource/Wall.hpp \
   Modules/MSource/Z2.hpp \
   Modules/MUtilities/PrecisionCast.hpp \
-  Modules/MUtilities/RandomVectors.hpp
+  Modules/MUtilities/RandomVectors.hpp \
+  Modules/MUtilities/A2ACovariantSmear.hpp
 

@@ -58,10 +58,44 @@ public:
     GridCartesian                     *getGrid(void) const;
     // generate noise (pure virtual)
     virtual void generateNoise(GridParallelRNG &rng) = 0;
+  void copyNoise(const std::vector<FermionField> &in, const int init = 0 );
 private:
     std::vector<FermionField> noise_;
     GridCartesian             *grid_;
     unsigned int              nNoise_;
+};
+
+class DilutedNoiseIo
+{
+public:
+    struct Record: Serializable
+    {
+        GRID_SERIALIZABLE_CLASS_MEMBERS(Record,
+                                        unsigned int, index);
+        Record(void): index(0) {}
+    };
+public:
+  //template <typename Field>
+    //static void write(const std::string fileStem, std::vector<Field> &vec, 
+    //                  const bool multiFile, const int trajectory = -1);
+    template <typename Field>
+    static void read(std::vector<Field> &noise, const std::string fileStem,
+                     const bool multiFile, const int trajectory = -1);
+private:
+    static inline std::string vecFilename(const std::string stem, const int traj, 
+                                          const bool multiFile)
+    {
+        std::string t = (traj < 0) ? "" : ("." + std::to_string(traj));
+
+        if (multiFile)
+        {
+            return stem + t;
+        }
+        else
+        {
+            return stem + t + ".bin";
+        }
+    }
 };
 
 template <typename FImpl>
@@ -180,6 +214,20 @@ template <typename FImpl>
 GridCartesian * DilutedNoise<FImpl>::getGrid(void) const
 {
     return grid_;
+}
+
+/******************************************************************************
+ *        TimeDilutedSpinColorDiagonalNoise template implementation           *
+ ******************************************************************************/
+template <typename FImpl>
+void DilutedNoise<FImpl>::copyNoise(const std::vector<typename FImpl::FermionField> &in, const int init )
+{
+  std::cout << in.size() << " " << noise_.size() << std::endl;
+  //assert( in.size() == noise_.size() );
+  resize(in.size()-init);
+  for(int i=0;i+init<in.size();++i){
+    noise_[i]=in[i+init];
+  }
 }
 
 /******************************************************************************
@@ -349,6 +397,50 @@ void SparseSpinColorDiagonalNoise<FImpl>::generateNoise(GridParallelRNG &rng)
     }
     Real norm = sqrt(1./nSrc_ec);
     this->normalise(norm);
+}
+
+template <typename Field>
+void DilutedNoiseIo::read(std::vector<Field> &noise, const std::string fileStem, 
+			  const bool multiFile, const int trajectory)
+{
+    Record       record;
+    ScidacReader binReader;
+    std::string  filename = vecFilename(fileStem, trajectory, multiFile);
+
+    if (multiFile)
+    {
+        std::string fullFilename;
+
+        for (unsigned int i = 0; i < noise.size(); ++i)
+        {
+            fullFilename = filename + "/elem" + std::to_string(i) + ".bin";
+
+            LOG(Message) << "Reading noise vector " << i << std::endl;
+            binReader.open(fullFilename);
+            binReader.readScidacFieldRecord(noise[i], record);
+	    //std::cout << vec[i] << std::endl;
+            binReader.close();
+            if (record.index != i)
+            {
+                HADRONS_ERROR(Io, "vector index mismatch");
+            }
+        }
+    }
+    else
+    {
+        binReader.open(filename);
+        for (unsigned int i = 0; i < noise.size(); ++i)
+        {
+            LOG(Message) << "Reading noise vector " << i << std::endl;
+            binReader.readScidacFieldRecord(noise[i], record);
+	    //std::cout << vec[i] << std::endl;
+            if (record.index != i)
+            {
+                HADRONS_ERROR(Io, "vector index mismatch");
+            }
+        }
+        binReader.close();
+    }
 }
 
 END_HADRONS_NAMESPACE

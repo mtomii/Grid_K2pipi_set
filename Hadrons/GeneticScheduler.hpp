@@ -159,10 +159,13 @@ template <typename V, typename T>
 void GeneticScheduler<V, T>::initPopulation(void)
 {
     population_.clear();
+    std::cout << par_.popSize << std::endl;
     for (unsigned int i = 0; i < par_.popSize; ++i)
     {
         auto p = graph_.topoSort(gen_);
         
+      std::cout << p << std::endl;
+      func_(p);
         population_.insert(std::make_pair(func_(p), p));
     }
 }

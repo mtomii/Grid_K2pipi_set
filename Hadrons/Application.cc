@@ -117,23 +117,30 @@ void Application::run(void)
     vm().setRunId(getPar().runId);
     vm().printContent();
     env().printContent();
+    std::cout << "-- printContent done" << std::endl;
     if (getPar().saveSchedule or getPar().scheduleFile.empty())
     {
+    std::cout << "-- Scheduling" << std::endl;
         schedule();
+    std::cout << "-- done" << std::endl;
         if (getPar().saveSchedule)
         {
+    std::cout << "-- if getPar().saveSchedule" << std::endl;
             std::string filename;
 
             filename = (getPar().scheduleFile.empty()) ? 
                          "hadrons.sched" : getPar().scheduleFile;
+    std::cout << "-- filename" << std::endl;
             saveSchedule(filename);
         }
     }
     else
     {
+    std::cout << "-- loadSchedule" << std::endl;
         loadSchedule(getPar().scheduleFile);
     }
     printSchedule();
+    std::cout << "-- printSchedule" << std::endl;
     if (!getPar().graphFile.empty())
     {
         makeFileDir(getPar().graphFile, env().getGrid());

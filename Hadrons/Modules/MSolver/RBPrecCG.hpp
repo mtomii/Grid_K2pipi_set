@@ -51,6 +51,7 @@ public:
                                     std::string , action,
                                     unsigned int, maxIteration,
                                     double      , residual,
+				    bool        , err_on_no_conv,
                                     std::string , eigenPack);
 };
 
@@ -140,7 +141,14 @@ void TRBPrecCG<FImpl, nBasis>::setup(void)
         return [&mat, guesserPt, subGuess, this](FermionField &sol,
                                      const FermionField &source) {
             ConjugateGradient<FermionField> cg(par().residual,
-                                               par().maxIteration);
+                                               par().maxIteration,
+					       par().err_on_no_conv);
+	    /*
+            ConjugateGradientReliableUpdate<FermionField>
+	      cg(par().residual,
+		 par().maxIteration,
+		 par().err_on_no_conv);
+	    */
             HADRONS_DEFAULT_SCHUR_SOLVE<FermionField> schurSolver(cg);
             schurSolver.subtractGuess(subGuess);
             schurSolver(mat, source, sol, *guesserPt);

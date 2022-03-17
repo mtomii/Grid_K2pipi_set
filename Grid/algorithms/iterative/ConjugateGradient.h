@@ -142,7 +142,8 @@ public:
       LinalgTimer.Stop();
 
       std::cout << GridLogIterative << "ConjugateGradient: Iteration " << k
-                << " residual^2 " << sqrt(cp/ssq) << " target " << Tolerance << std::endl;
+                << " residual " << cp << " target " << rsq << std::endl;
+      //<< " residual^2 " << sqrt(cp/ssq) << " target " << Tolerance << std::endl;
 
       // Stopping condition
       if (cp <= rsq) {

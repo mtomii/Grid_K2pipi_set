@@ -1,10 +1,14 @@
 #pragma once
 //#include <Grid/Hadrons/Global.hpp>
 #include <Grid/Grid_Eigen_Tensor.h>
+#include <Grid/qcd/spin/Dirac.h>
 
 NAMESPACE_BEGIN(Grid);
 
 #undef DELTA_F_EQ_2
+
+//template <typename T>
+//using A2AMatrix = Eigen::Matrix<T, -1, -1, Eigen::RowMajor>;
 
 template <typename FImpl>
 class A2Autils 
@@ -25,6 +29,7 @@ public:
   typedef iSinglet<scalar_type> Scalar_s;
 
   typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
+  typedef iColourMatrix<vector_type> ColourMatrix_v;
 
   template <typename TensorType> // output: rank 5 tensor, e.g. Eigen::Tensor<ComplexD, 5>
   static void MesonField(TensorType &mat, 
@@ -33,6 +38,175 @@ public:
 			 std::vector<Gamma::Algebra> gammas,
 			 const std::vector<ComplexField > &mom,
 			 int orthogdim, double *t_kernel = nullptr, double *t_gsum = nullptr);
+
+  // for type 0 EMF
+  static void QuarkLoop(std::vector<Scalar_v> &cf, 
+			const FermionField *v,
+			const FermionField *w,
+			const std::vector<std::vector<Gamma::Algebra> > gammas,
+			const int Nblock);
+  // for type 1 EMF
+  static void QuarkLoop(std::vector<SpinColourMatrix_v> &mat, 
+			const FermionField *v,
+			const FermionField *w,
+			const int Nblock);
+  // for type 2 EMF
+  static void QuarkLoop(std::vector<ColourMatrix_v> &cf, 
+			const FermionField *v,
+			const FermionField *w,
+			const std::vector<std::vector<Gamma::Algebra> > gammas,
+			const int Nblock);
+  // for type 3 EMF
+  static void QuarkLoop(std::vector<SpinMatrix_v> &mat, 
+			const FermionField *v,
+			const FermionField *w,
+			const int Nblock);
+
+  // for type 0
+  template <typename MatrixType>
+  static void VPiW(std::vector<Scalar_v> &cf, 
+		   const std::vector<MatrixType> &Pi,
+		   const FermionField *v,
+		   const FermionField *w,
+		   const std::vector<std::vector<Gamma::Algebra> > gammas,
+		   const int i,  const int j,
+		   const int Ni, const int Nj);
+
+  // for type 1
+  template <typename MatrixType>
+  static void VPiW(std::vector<SpinColourMatrix_v> &mat, 
+		   const std::vector<MatrixType> &Pi,
+		   const FermionField *v,
+		   const FermionField *w,
+		   const int i,  const int j,
+		   const int Ni, const int Nj);
+
+  // for type 2
+  template <typename MatrixType>
+  static void VPiW(std::vector<ColourMatrix_v> &cf, 
+		   const std::vector<MatrixType> &Pi,
+		   const FermionField *v,
+		   const FermionField *w,
+		   const std::vector<std::vector<Gamma::Algebra> > gammas,
+		   const int i,  const int j,
+		   const int Ni, const int Nj);
+
+  // for type 3
+  template <typename MatrixType>
+  static void VPiW(std::vector<SpinMatrix_v> &mat, 
+		   const std::vector<MatrixType> &Pi,
+		   const FermionField *v,
+		   const FermionField *w,
+		   const int i,  const int j,
+		   const int Ni, const int Nj);
+
+  // for type 0 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop0(FieldMatrix &left_loop,
+		        const std::vector<SpinColourMatrix_v> &mat,
+		        const FermionField *left,
+		        std::vector<std::vector<Gamma::Algebra> > gammas1,
+		        std::vector<std::vector<Gamma::Algebra> > gammas2,
+		        const int Nblock, const int offset);
+
+  // for type 1 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop1(FieldMatrix &left_loop,
+		        const std::vector<SpinColourMatrix_v> &mat,
+		        const FermionField *left,
+		        std::vector<std::vector<Gamma::Algebra> > gammas1,
+		        std::vector<std::vector<Gamma::Algebra> > gammas2,
+		        const int Nblock, const int offset);
+
+  // for type 2 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop2(FieldMatrix &left_loop,
+		        const std::vector<SpinColourMatrix_v> &mat,
+		        const FermionField *left,
+		        std::vector<std::vector<Gamma::Algebra> > gammas1,
+		        std::vector<std::vector<Gamma::Algebra> > gammas2,
+		        const int Nblock, const int offset);
+
+  // for type 3 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop3(FieldMatrix &left_loop,
+		        const std::vector<SpinColourMatrix_v> &mat,
+		        const FermionField *left,
+		        std::vector<std::vector<Gamma::Algebra> > gammas1,
+		        std::vector<std::vector<Gamma::Algebra> > gammas2,
+		        const int Nblock, const int offset);
+
+  // for type 2 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop(FieldMatrix &left_loop,
+		       const std::vector<ColourMatrix_v> &mat,
+		       const FermionField *left,
+		       std::vector<std::vector<Gamma::Algebra> > gammas1,
+		       const int Nblock, const int offset);
+
+  // for type 3 Left * Loop
+  template <typename FieldMatrix>
+  static void LeftLoop(FieldMatrix &left_loop,
+		       const std::vector<SpinMatrix_v> &mat,
+		       const FermionField *left,
+		       std::vector<std::vector<Gamma::Algebra> > gammas1,
+		       std::vector<std::vector<Gamma::Algebra> > gammas2,
+		       const int Nblock, const int offset);
+
+  // New Extended Meson Field (types1,2,3)
+  template <typename TensorType, typename FieldMatrix>
+  static void ExtendedMesonField(
+			 TensorType &mat,
+			 const FieldMatrix &left_loop,
+			 const FermionField *rhs_vj,
+			 const int offset,
+			 double *t_kernel = nullptr,
+			 double *t_gsum = nullptr);
+
+  // type 0
+  template <typename TensorType>
+  static void ExtendedMesonField(
+			 TensorType &mat,
+			 const std::vector<Scalar_v > &loop_s,
+			 const FermionField *lhs_wi,
+			 const FermionField *rhs_vj,
+			 std::vector<std::vector<Gamma::Algebra> > gammas1,
+			 double *t_kernel = nullptr, double *t_gsum = nullptr);
+
+  // type 1
+  template <typename TensorType>
+  static void ExtendedMesonField(
+			 TensorType &mat,
+			 const std::vector<SpinColourMatrix_v > &loop_m,
+			 const FermionField *lhs_wi,
+			 const FermionField *rhs_vj,
+			 std::vector<Gamma::Algebra> gammas1,
+			 std::vector<Gamma::Algebra> gammas2,
+			 const std::vector<ComplexField > &mom,
+			 double *t_kernel = nullptr, double *t_gsum = nullptr);
+
+  // type 2
+  template <typename TensorType>
+  static void ExtendedMesonField(
+			 TensorType &mat,
+			 const std::vector<ColourMatrix_v > &loop_s,
+			 const FermionField *lhs_wi,
+			 const FermionField *rhs_vj,
+			 std::vector<Gamma::Algebra> gammas1,
+			 const std::vector<ComplexField > &mom,
+			 double *t_kernel = nullptr, double *t_gsum = nullptr);
+  // type 3
+  template <typename TensorType>
+  static void ExtendedMesonField(
+			 TensorType &mat,
+			 const std::vector<SpinMatrix_v > &loop_m,
+			 const FermionField *lhs_wi,
+			 const FermionField *rhs_vj,
+			 std::vector<Gamma::Algebra> gammas1,
+			 std::vector<Gamma::Algebra> gammas2,
+			 const std::vector<ComplexField > &mom,
+			 double *t_kernel = nullptr, double *t_gsum = nullptr);
+
 
   static void PionFieldWVmom(Eigen::Tensor<ComplexD,4> &mat, 
 			     const FermionField *wi,
@@ -147,10 +321,9 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
   int Nt     = grid->GlobalDimensions()[orthogdim];
   int Ngamma = gammas.size();
   int Nmom   = mom.size();
-
-  int fd=grid->_fdimensions[orthogdim];
-  int ld=grid->_ldimensions[orthogdim];
-  int rd=grid->_rdimensions[orthogdim];
+  int fd=grid->_fdimensions[orthogdim];// 64
+  int ld=grid->_ldimensions[orthogdim];// 16
+  int rd=grid->_rdimensions[orthogdim];// 8
 
   // will locally sum vectors first
   // sum across these down to scalars
@@ -159,11 +332,12 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
   int MFlvol = ld*Lblock*Rblock*Nmom;
 
   Vector<SpinMatrix_v > lvSum(MFrvol);
+  //std::vector<SpinMatrix_v > lvSum(MFrvol);
   thread_for( r, MFrvol,{
     lvSum[r] = Zero();
   });
 
-  Vector<SpinMatrix_s > lsSum(MFlvol);             
+  Vector<SpinMatrix_s > lsSum(MFlvol);
   thread_for(r,MFlvol,{
     lsSum[r]=scalar_type(0.0);
   });
@@ -195,11 +369,10 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 	    auto right = rhs_v[ss];
 	    for(int s1=0;s1<Ns;s1++){
 	    for(int s2=0;s2<Ns;s2++){
-	      vv()(s1,s2)() = left()(s2)(0) * right()(s1)(0)
-		+             left()(s2)(1) * right()(s1)(1)
-		+             left()(s2)(2) * right()(s1)(2);
+		vv()(s1,s2)() = left()(s2)(0) * right()(s1)(0)
+		  +             left()(s2)(1) * right()(s1)(1)
+		  +             left()(s2)(2) * right()(s1)(2);
 	    }}
-	    
 	    // After getting the sitewise product do the mom phase loop
 	    int base = Nmom*i+Nmom*Lblock*j+Nmom*Lblock*Rblock*r;
 	    for ( int m=0;m<Nmom;m++){
@@ -208,7 +381,6 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 	      auto phase = mom_v[ss];
 	      mac(&lvSum[idx],&vv,&phase);
 	    }
-	  
 	  }
 	}
       }
@@ -220,7 +392,6 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 
     Coordinate icoor(Nd);
     ExtractBuffer<SpinMatrix_s> extracted(Nsimd);               
-
     for(int i=0;i<Lblock;i++){
     for(int j=0;j<Rblock;j++){
     for(int m=0;m<Nmom;m++){
@@ -289,6 +460,1753 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
   grid->GlobalSumVector(&mat(0,0,0,0,0),Nmom*Ngamma*Nt*Lblock*Rblock);
   if (t_gsum) *t_gsum += usecond();
 }
+
+// for type 0
+template <class FImpl>
+void A2Autils<FImpl>::QuarkLoop(std::vector<Scalar_v> &cf,
+				const FermionField *v,
+				const FermionField *w,
+				const std::vector<std::vector<Gamma::Algebra> > gammas,
+				const int Nblock)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas.size();++ig){
+    Ngamma += gammas[ig].size();
+  }
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	auto lhs_v = v[i].View();
+	auto left = lhs_v[ss];
+	auto rhs_v = w[i].View();
+	auto right = conjugate(rhs_v[ss]);
+	SpinMatrix_v tmp = Zero();
+	for(int s1=0;s1<Ns;s1++)
+	for(int s2=0;s2<Ns;s2++){
+	  for(int c=0;c<Nc;c++){
+	    tmp()(s1,s2)() = tmp()(s1,s2)() + left()(s1)(c) * right()(s2)(c);
+	  }
+	  //vv()(s1,s2)(c1,c2) = left()(s1)(c1) * right()(s2)(c2);
+	  //SpinColourMatrix_v vv = mat[ss];
+	}
+	int ngam = 0;
+	for(int ig=0;ig<gammas.size();++ig)
+	for(int mu=0;mu<gammas[ig].size();++mu){
+	  SpinMatrix_v tmp2 = Gamma(gammas[ig][mu])*tmp;
+	  for(int s=0;s<Ns;++s){
+	    cf[ngam+Ngamma*ss]()()() += tmp2()(s,s)();
+	  }
+	  ++ngam;
+	}
+      }
+    }}
+  });
+}
+
+// for type 1
+template <class FImpl>
+void A2Autils<FImpl>::QuarkLoop(std::vector<SpinColourMatrix_v> &mat,
+				const FermionField *v,
+				const FermionField *w,
+				const int Nblock)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	auto lhs_v = v[i].View();
+	auto left = lhs_v[ss];
+	auto rhs_v = w[i].View();
+	auto right = conjugate(rhs_v[ss]);
+	for(int c1=0;c1<Nc;c1++)
+	for(int c2=0;c2<Nc;c2++)
+	for(int s1=0;s1<Ns;s1++)
+	for(int s2=0;s2<Ns;s2++){
+	  mat[ss]()(s1,s2)(c1,c2) += left()(s1)(c1) * right()(s2)(c2);
+	  //vv()(s1,s2)(c1,c2) = left()(s1)(c1) * right()(s2)(c2);
+	  //SpinColourMatrix_v vv = mat[ss];
+	}
+      }
+    }}
+  });
+}
+
+// for type 2
+template <class FImpl>
+void A2Autils<FImpl>::QuarkLoop(std::vector<ColourMatrix_v> &cmat,
+				const FermionField *v,
+				const FermionField *w,
+				const std::vector<std::vector<Gamma::Algebra> > gammas,
+				const int Nblock)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas.size();++ig){
+    Ngamma += gammas[ig].size();
+  }
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	auto lhs_v = v[i].View();
+	auto left = lhs_v[ss];
+	auto rhs_v = w[i].View();
+	auto right = conjugate(rhs_v[ss]);
+	SpinColourMatrix_v tmp = Zero();
+	for(int c1=0;c1<Nc;c1++)
+	for(int c2=0;c2<Nc;c2++)
+	for(int s1=0;s1<Ns;s1++)
+	for(int s2=0;s2<Ns;s2++){
+	  tmp()(s1,s2)(c1,c2) += left()(s1)(c1) * right()(s2)(c2);
+	}
+	int ngam = 0;
+	for(int ig=0;ig<gammas.size();++ig)
+	for(int mu=0;mu<gammas[ig].size();++mu){
+	  SpinColourMatrix_v tmp2 = Gamma(gammas[ig][mu])*tmp;
+	  for(int c1=0;c1<Nc;c1++)
+	  for(int c2=0;c2<Nc;c2++)
+	  for(int s=0;s<Ns;++s){
+	    cmat[ngam+Ngamma*ss]()()(c1,c2) += tmp2()(s,s)(c1,c2);
+	  }
+	  ++ngam;
+	}
+      }
+    }}
+  });
+}
+
+// for type 3
+template <class FImpl>
+void A2Autils<FImpl>::QuarkLoop(std::vector<SpinMatrix_v> &mat,
+				const FermionField *v,
+				const FermionField *w,
+				const int Nblock)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	auto lhs_v = v[i].View();
+	auto left = lhs_v[ss];
+	auto rhs_v = w[i].View();
+	auto right = conjugate(rhs_v[ss]);
+	for(int c1=0;c1<Nc;c1++)
+	for(int s1=0;s1<Ns;s1++)
+	for(int s2=0;s2<Ns;s2++){
+	  mat[ss]()(s1,s2)() += left()(s1)(c1) * right()(s2)(c1);
+	}
+      }
+    }}
+  });
+}
+
+// for type 0
+template <class FImpl>
+template <typename MatrixType>
+void A2Autils<FImpl>::VPiW(std::vector<Scalar_v> &cf, 
+			   const std::vector<MatrixType> &Pi,
+			   const FermionField *v,
+			   const FermionField *w,
+			   const std::vector<std::vector<Gamma::Algebra> > gammas,
+			   const int i_in,  const int j_in,
+			   const int Ni, const int Nj)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+  //assert(rd==1);
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas.size();++ig){
+    Ngamma += gammas[ig].size();
+  }
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      SpinMatrix_v vv = Zero();
+      for(int s1=0;s1<Ns;s1++){
+      for(int c1=0;c1<Nc;c1++){
+	for(int j=0;j<Nj;j++){
+	  Scalar_v s1c1j = Zero();
+	  for(int i=0;i<Ni;i++){
+	    auto lhs_v = v[i].View();
+	    auto left  = lhs_v[ss];
+	    s1c1j()()() += left()(s1)(c1) * Pi[r](i_in+i,j_in+j);
+	  }
+	  auto rhs_v = w[j].View();
+	  auto right = conjugate(rhs_v[ss]);
+	  for(int s2=0;s2<Ns;s2++) vv()(s1,s2)() += s1c1j()()() * right()(s2)(c1);
+	  //cf[ss]()()() += s1c1j()()() * right()(s1)(c1);
+	}
+      }}
+      int ngam = 0;
+      for(int ig=0;ig<gammas.size();ig++)
+      for(int mu=0;mu<gammas[ig].size();mu++) {
+	Scalar_v scl; Trace(scl,vv,Gamma(gammas[ig][mu]));
+	cf[ngam+Ngamma*ss]()()() += scl()()();
+	++ngam;
+      }
+    }}
+  });
+}
+
+// for type 1
+template <class FImpl>
+template <typename MatrixType>
+void A2Autils<FImpl>::VPiW(std::vector<SpinColourMatrix_v> &mat,
+			   const std::vector<MatrixType> &Pi,
+			   const FermionField *v,
+			   const FermionField *w,
+			   const int i_in,  const int j_in,
+			   const int Ni, const int Nj)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  //typedef iSpinColourVector<vector_type> SpinColourVector_v;
+
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+  //assert(rd==1);
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int s1=0;s1<Ns;s1++)
+      for(int c1=0;c1<Nc;c1++){
+	for(int j=0;j<Nj;j++){
+	  Scalar_v s1c1j = Zero();
+	  for(int i=0;i<Ni;i++){
+	    auto lhs_v = v[i].View();
+	    auto left  = lhs_v[ss];
+	    s1c1j()()() += left()(s1)(c1) * Pi[r](i_in+i,j_in+j);
+	  }
+	  auto rhs_v = w[j].View();
+	  auto right = conjugate(rhs_v[ss]);
+	  for(int s2=0;s2<Ns;s2++)
+	  for(int c2=0;c2<Nc;c2++){
+	    mat[ss]()(s1,s2)(c1,c2) += s1c1j()()() * right()(s2)(c2);
+	  }
+	}
+      }
+    }}
+  });
+}
+
+// for type 2
+template <class FImpl>
+template <typename MatrixType>
+void A2Autils<FImpl>::VPiW(std::vector<ColourMatrix_v> &cmat, 
+			   const std::vector<MatrixType> &Pi,
+			   const FermionField *v,
+			   const FermionField *w,
+			   const std::vector<std::vector<Gamma::Algebra> > gammas,
+			   const int i_in,  const int j_in,
+			   const int Ni, const int Nj)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+  //assert(rd==1);
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas.size();++ig){
+    Ngamma += gammas[ig].size();
+  }
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      SpinColourMatrix_v vv = Zero();
+      for(int s1=0;s1<Ns;s1++){
+      for(int c1=0;c1<Nc;c1++){
+	for(int j=0;j<Nj;j++){
+	  Scalar_v s1c1j = Zero();
+	  for(int i=0;i<Ni;i++){
+	    auto lhs_v = v[i].View();
+	    auto left  = lhs_v[ss];
+	    s1c1j()()() += left()(s1)(c1) * Pi[r](i_in+i,j_in+j);
+	  }
+	  auto rhs_v = w[j].View();
+	  auto right = conjugate(rhs_v[ss]);
+	  for(int s2=0;s2<Ns;s2++)
+	    for(int c2=0;c2<Nc;c2++)
+	      vv()(s1,s2)(c1,c2) += s1c1j()()() * right()(s2)(c2);
+	}
+      }}
+      int ngam = 0;
+      for(int ig=0;ig<gammas.size();++ig)
+      for(int mu=0;mu<gammas[ig].size();++mu){
+	SpinColourMatrix_v tmp2 = Gamma(gammas[ig][mu])*vv;
+	for(int c1=0;c1<Nc;c1++)
+	for(int c2=0;c2<Nc;c2++)
+	for(int s=0;s<Ns;++s){
+	  cmat[ngam+Ngamma*ss]()()(c1,c2) += tmp2()(s,s)(c1,c2);
+	}
+	++ngam;
+      }
+    }}
+  });
+}
+
+// for type 3
+template <class FImpl>
+template <typename MatrixType>
+void A2Autils<FImpl>::VPiW(std::vector<SpinMatrix_v> &mat,
+			   const std::vector<MatrixType> &Pi,
+			   const FermionField *v,
+			   const FermionField *w,
+			   const int i_in,  const int j_in,
+			   const int Ni, const int Nj)
+{
+// Omitting lhs_wi, rhs_vj, gammas, orthogdim, t_kernel, t_gsum
+  //typedef iSpinColourVector<vector_type> SpinColourVector_v;
+
+  GridBase *grid = v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+  //assert(rd==1);
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      //SpinColourMatrix_v vv = mat[ss];
+      for(int s1=0;s1<Ns;s1++)
+      for(int c1=0;c1<Nc;c1++){
+	for(int j=0;j<Nj;j++){
+	  Scalar_v s1c1j = Zero();
+	  for(int i=0;i<Ni;i++){
+	    auto lhs_v = v[i].View();
+	    auto left  = lhs_v[ss];
+	    s1c1j()()() += left()(s1)(c1) * Pi[r](i_in+i,j_in+j);
+	  }
+	  auto rhs_v = w[j].View();
+	  auto right = conjugate(rhs_v[ss]);
+	  for(int s2=0;s2<Ns;s2++){
+	    mat[ss]()(s1,s2)() += s1c1j()()() * right()(s2)(c1);
+	  }
+	}
+      }
+    }}
+  });
+}
+
+// for type 0 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop0(FieldMatrix &left_loop,
+				const std::vector<SpinColourMatrix_v> &loop_m,
+				const FermionField *left_v,
+				std::vector<std::vector<Gamma::Algebra> > gammas1,
+				std::vector<std::vector<Gamma::Algebra> > gammas2,
+				const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      SpinMatrix_v vv = Zero();
+      SpinColourMatrix_v tmp = loop_m[ss];
+      for(int s1=0;s1<Ns;++s1)
+      for(int s2=0;s2<Ns;++s2){
+	vv()(s1,s2)() = tmp()(s1,s2)(0,0) + tmp()(s1,s2)(1,1) + tmp()(s1,s2)(2,2);
+	//loop_m[ss]()(s1,s2)(0,0)
+	//+ loop_m[ss]()(s1,s2)(1,1);
+	//+ loop_m[ss]()(s1,s2)(2,2);
+      }
+      for(int ig=0;ig<gammas1.size();++ig)
+      for(int mu=0;mu<gammas1[ig].size();++mu){
+	//WM += Gamma(gammas1[ig][mu]) * loop_m[ss] * ;
+	Scalar_v scl; Trace(scl,vv,Gamma(gammas2[ig][mu]));
+	for(int i=0;i<Nblock;i++){
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c) = left()(s)(c) * scl()()();
+	  }
+
+	  if ( mu == 0 ) {
+	    left_loop(ig,i+offset,ss) = left_v * Gamma(gammas1[ig][mu]);
+	    continue;
+	  }
+	  left_loop(ig,i+offset,ss) += left_v * Gamma(gammas1[ig][mu]);
+	}
+      }
+    }}
+  });
+}
+
+// for type 1 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop1(FieldMatrix &left_loop,
+				const std::vector<SpinColourMatrix_v> &loop_m,
+				const FermionField *left_v,
+				std::vector<std::vector<Gamma::Algebra> > gammas1,
+				std::vector<std::vector<Gamma::Algebra> > gammas2,
+				const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      for(int ig=0;ig<gammas1.size();++ig){
+	SpinColourMatrix_v WM = Zero();
+	for(int mu=0;mu<gammas1[ig].size();++mu){
+	  WM += Gamma(gammas1[ig][mu]) * loop_m[ss] * Gamma(gammas2[ig][mu]);
+	}
+	for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c)
+	      = left()(0)(0) * WM()(0,s)(0,c)
+	      + left()(1)(0) * WM()(1,s)(0,c)
+	      + left()(2)(0) * WM()(2,s)(0,c)
+	      + left()(3)(0) * WM()(3,s)(0,c)
+	      + left()(0)(1) * WM()(0,s)(1,c)
+	      + left()(1)(1) * WM()(1,s)(1,c)
+	      + left()(2)(1) * WM()(2,s)(1,c)
+	      + left()(3)(1) * WM()(3,s)(1,c)
+	      + left()(0)(2) * WM()(0,s)(2,c)
+	      + left()(1)(2) * WM()(1,s)(2,c)
+	      + left()(2)(2) * WM()(2,s)(2,c)
+	      + left()(3)(2) * WM()(3,s)(2,c);
+	  }
+
+	  left_loop(ig,i+offset,ss) = left_v;
+	}
+      }
+    }}
+  });
+}
+
+// for type 2 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop2(FieldMatrix &left_loop,
+				const std::vector<SpinColourMatrix_v> &loop_m,
+				const FermionField *left_v,
+				std::vector<std::vector<Gamma::Algebra> > gammas1,
+				std::vector<std::vector<Gamma::Algebra> > gammas2,
+				const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      for(int ig=0;ig<gammas1.size();++ig)
+      for(int mu=0;mu<gammas1[ig].size();++mu){
+	//WM += Gamma(gammas1[ig][mu]) * loop_m[ss] * ;
+	ColourMatrix_v cmat = Zero();
+	SpinColourMatrix_v tmp = Gamma(gammas2[ig][mu])*loop_m[ss];
+	for(int c1=0;c1<Nc;++c1)
+	for(int c2=0;c2<Nc;++c2){
+	  cmat()()(c1,c2)
+	    = tmp()(0,0)(c1,c2)
+	    + tmp()(1,1)(c1,c2)
+	    + tmp()(2,2)(c1,c2)
+	    + tmp()(3,3)(c1,c2);
+	}
+	for(int i=0;i<Nblock;i++){
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c)
+	      = left()(s)(0) * cmat()()(0,c)
+	      + left()(s)(1) * cmat()()(1,c)
+	      + left()(s)(2) * cmat()()(2,c);
+	  }
+	  if ( mu == 0 ) {
+	    left_loop(ig,i+offset,ss) = left_v * Gamma(gammas1[ig][mu]);
+	    continue;
+	  }
+	  left_loop(ig,i+offset,ss) += left_v * Gamma(gammas1[ig][mu]);
+	}
+      }
+    }}
+  });
+}
+
+// for type 3 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop3(FieldMatrix &left_loop,
+				const std::vector<SpinColourMatrix_v> &loop_m,
+				const FermionField *left_v,
+				std::vector<std::vector<Gamma::Algebra> > gammas1,
+				std::vector<std::vector<Gamma::Algebra> > gammas2,
+				const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      SpinMatrix_v vv = Zero();
+      for(int s1=0;s1<Ns;++s1)
+      for(int s2=0;s2<Ns;++s2){
+	vv()(s1,s2)() =
+	    loop_m[ss]()(s1,s2)(0,0)
+	  + loop_m[ss]()(s1,s2)(1,1)
+	  + loop_m[ss]()(s1,s2)(2,2);
+      }
+      for(int ig=0;ig<gammas1.size();++ig){
+	SpinMatrix_v SM = Zero();
+	for(int mu=0;mu<gammas1[ig].size();++mu){
+	  SM += Gamma(gammas1[ig][mu]) * vv * Gamma(gammas2[ig][mu]);
+	}
+	for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c)
+	      = left()(0)(c) * SM()(0,s)()
+	      + left()(1)(c) * SM()(1,s)()
+	      + left()(2)(c) * SM()(2,s)()
+	      + left()(3)(c) * SM()(3,s)();
+	  }
+
+	  left_loop(ig,i+offset,ss) = left_v;
+	}
+      }
+    }}
+  });
+}
+
+// for type 2 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop(FieldMatrix &left_loop,
+			       const std::vector<ColourMatrix_v> &loop_m,
+			       const FermionField *left_v,
+			       std::vector<std::vector<Gamma::Algebra> > gammas1,
+			       const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas1.size();++ig){
+    Ngamma += gammas1[ig].size();
+  }
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    //std::cout<<r<<" "<<so<<std::endl;
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      int ngam = 0;
+      for(int ig=0;ig<gammas1.size();++ig)
+      for(int mu=0;mu<gammas1[ig].size();++mu){
+	ColourMatrix_v CM = loop_m[ngam+Ngamma*ss];
+	for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c)
+	      = left()(s)(0) * CM()()(0,c)
+	      + left()(s)(1) * CM()()(1,c)
+	      + left()(s)(2) * CM()()(2,c);
+	  }
+	  if ( mu == 0 ) {
+	    left_loop(ig,i+offset,ss) = left_v * Gamma(gammas1[ig][mu]);
+	    continue;
+	  }
+	  left_loop(ig,i+offset,ss) += left_v * Gamma(gammas1[ig][mu]);
+	}
+	++ngam;
+      }
+    }}
+  });
+}
+
+// for type 3 Left * Loop
+template <class FImpl>
+template <class FieldMatrix>
+void A2Autils<FImpl>::LeftLoop(FieldMatrix &left_loop,
+			       const std::vector<SpinMatrix_v> &loop_m,
+			       const FermionField *left_v,
+			       std::vector<std::vector<Gamma::Algebra> > gammas1,
+			       std::vector<std::vector<Gamma::Algebra> > gammas2,
+			       const int Nblock, const int offset)
+{
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  GridBase *grid = left_v[0].Grid();// defined in Grid/cartesian/Cartesian_base.h
+
+  int orthogdim = 3;
+
+  int rd=grid->_rdimensions[orthogdim];//2
+
+  int e1=    grid->_slice_nblock[orthogdim];//1
+  int e2=    grid->_slice_block [orthogdim];//64 must be 4^3
+  int stride=grid->_slice_stride[orthogdim];//128
+
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+    for(int b=0;b<e2;b++){
+      int ss= so+n*stride+b;
+      int ngam = 0;
+      for(int ig=0;ig<gammas1.size();++ig){
+	SpinMatrix_v WM = Zero();
+	for(int mu=0;mu<gammas1[ig].size();++mu){
+	  WM += Gamma(gammas1[ig][mu]) * loop_m[ss] * Gamma(gammas2[ig][mu]);
+	}
+	for(int i=0;i<Nblock;i++){
+	//SpinColourMatrix_v vv = Zero();
+	  auto lhs_v = left_v[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+
+	  SpinColourVector_v left_v = Zero();
+	  for(int s=0;s<Ns;++s)
+	  for(int c=0;c<Nc;++c){
+	    left_v()(s)(c)
+	      = left()(0)(c) * WM()(0,s)()
+	      + left()(1)(c) * WM()(1,s)()
+	      + left()(2)(c) * WM()(2,s)()
+	      + left()(3)(c) * WM()(3,s)();
+	  }
+	  left_loop(ig,i+offset,ss) = left_v;
+	}
+      }
+    }}
+  });
+}
+
+// New, types 1,2,3
+template <class FImpl>
+template <typename TensorType, typename FieldMatrix>
+void A2Autils<FImpl>::ExtendedMesonField(
+			 TensorType &mat,
+			 const FieldMatrix &left_loop,
+			 const FermionField *rhs_vj,
+			 const int offset,
+			 double *t_kernel, double *t_gsum) 
+{
+  /*
+  typedef typename FImpl::SiteSpinor vobj;
+
+  typedef typename vobj::scalar_object sobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef typename vobj::vector_type vector_type;
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iSpinMatrix<scalar_type> SpinMatrix_s;
+  */
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  
+  int Lblock = mat.dimension(3); 
+  int Rblock = mat.dimension(4);
+
+  const int orthogdim = 3;
+
+  GridBase *grid = rhs_vj[0].Grid();
+  
+  const int    Nd = grid->_ndimension;
+  const int Nsimd = grid->Nsimd();
+
+  int Nt     = grid->GlobalDimensions()[orthogdim];
+  int Ngamma = left_loop.dimension(0);
+
+  int ld=grid->_ldimensions[orthogdim];
+  int rd=grid->_rdimensions[orthogdim];
+
+  // will locally sum vectors first
+  // sum across these down to scalars
+  // splitting the SIMD
+  int MFrvol = rd*Lblock*Rblock*Ns*Ns;
+  int MFlvol = ld*Lblock*Rblock*Ns*Ns;
+
+  //Vector<SpinMatrix_v > lvSum(MFrvol);
+  Vector<Scalar_v > lvSum(MFrvol);
+  thread_for( r, MFrvol,{
+    lvSum[r] = Zero();
+  });
+
+  //Vector<SpinMatrix_s > lsSum(MFlvol);
+  Vector<Scalar_s > lsSum(MFlvol);
+  thread_for(r,MFlvol,{
+    lsSum[r]=scalar_type(0.0);
+  });
+
+  int e1=    grid->_slice_nblock[orthogdim];
+  int e2=    grid->_slice_block [orthogdim];
+  int stride=grid->_slice_stride[orthogdim];
+
+  //std::cout << "Size: " << rd << ", " << e1 << ", " << e2 << std::endl;
+  // potentially wasting cores here if local time extent too small
+  if (t_kernel) *t_kernel = -usecond();
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+      for(int b=0;b<e2;b++){
+	int ss= so+n*stride+b;
+	for(int j=0;j<Rblock;j++){
+	  auto rhs_v = rhs_vj[j].View();
+	  auto right = rhs_v[ss];
+	  for(int i=0;i<Lblock;i++){
+	    for(int mu=0;mu<Ngamma;++mu){
+	      SpinColourVector_v left_v = left_loop(mu,i+offset,ss);
+	      int idx = mu+Ngamma*(i+Lblock*(j+Rblock*r));
+	      for(int s=0;s<Ns;++s)
+	      for(int c=0;c<Nc;++c){
+		lvSum[idx]()()() += left_v()(s)(c) * right()(s)(c);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  // Sum across simd lanes in the plane, breaking out orthog dir.
+  thread_for(rt,rd,{
+
+    Coordinate icoor(Nd);
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+
+    for(int j=0;j<Rblock;j++){
+    for(int i=0;i<Lblock;i++){
+    for(int mu=0;mu<Ngamma;mu++){
+
+      int ij_rdx = mu+Ngamma*(i+Lblock*(j+Rblock*rt));
+
+      extract(lvSum[ij_rdx],extracted);
+
+      for(int idx=0;idx<Nsimd;idx++){
+
+	grid->iCoorFromIindex(icoor,idx);
+
+	int ldx    = rt+icoor[orthogdim]*rd;
+
+	int ij_ldx = mu+Ngamma*(i+Lblock*(j+Rblock*ldx));
+
+	lsSum[ij_ldx]=lsSum[ij_ldx]+extracted[idx];
+
+      }
+    }}}
+  });
+  if (t_kernel) *t_kernel += usecond();
+  assert(mat.dimension(1) == Ngamma);
+  assert(mat.dimension(2) == Nt);
+
+  // ld loop and local only??
+  int pd = grid->_processors[orthogdim];
+  int pc = grid->_processor_coor[orthogdim];
+  thread_for_collapse(2,lt,ld,{
+    for(int pt=0;pt<pd;pt++){
+      int t = lt + pt*ld;
+      if (pt == pc){
+	for(int j=0;j<Rblock;j++){
+	for(int i=0;i<Lblock;i++){
+	for(int mu=0;mu<Ngamma;mu++){
+	  int ij_dx = mu+Ngamma*(i+Lblock*(j+Rblock*lt));
+	      // this is a bit slow
+	    mat(0,mu,t,i,j) = lsSum[ij_dx];
+	}}}
+      } else {
+	const scalar_type zz(0.0);
+	for(int i=0;i<Lblock;i++){
+	  for(int j=0;j<Rblock;j++){
+	    for(int mu=0;mu<Ngamma;mu++){
+	      mat(0,mu,t,i,j) =zz;
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  ////////////////////////////////////////////////////////////////////
+  // This global sum is taking as much as 50% of time on 16 nodes
+  // Vector size is 7 x 16 x 32 x 16 x 16 x sizeof(complex) = 2MB - 60MB depending on volume
+  // Healthy size that should suffice
+  ////////////////////////////////////////////////////////////////////
+  if (t_gsum) *t_gsum = -usecond();
+  grid->GlobalSumVector(&mat(0,0,0,0,0),Ngamma*Nt*Lblock*Rblock);
+  if (t_gsum) *t_gsum += usecond();
+}
+
+// type 0
+template <class FImpl>
+template <typename TensorType>
+void A2Autils<FImpl>::ExtendedMesonField(
+				 TensorType &mat,
+				 const std::vector<Scalar_v > &loop_s,
+				 const FermionField *lhs_wi,
+				 const FermionField *rhs_vj,
+				 std::vector<std::vector<Gamma::Algebra> > gammas1,
+				 double *t_kernel, double *t_gsum)
+{
+  typedef typename FImpl::SiteSpinor vobj;
+
+  typedef typename vobj::scalar_object sobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef typename vobj::vector_type vector_type;
+
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iSinglet<vector_type> Scalar_v;
+  typedef iSinglet<scalar_type> Scalar_s;
+  
+  int Lblock = mat.dimension(3);
+  int Rblock = mat.dimension(4);
+
+  const int orthogdim = 3;
+
+  GridBase *grid = lhs_wi[0].Grid();
+  
+  const int    Nd = grid->_ndimension;
+  const int Nsimd = grid->Nsimd();
+
+  int Nt     = grid->GlobalDimensions()[orthogdim];
+  int Ngamma = 0;
+  for(int ig=0;ig<gammas1.size();++ig){
+    Ngamma += gammas1[ig].size();
+  }
+
+  int ld=grid->_ldimensions[orthogdim];
+  int rd=grid->_rdimensions[orthogdim];
+
+  // will locally sum vectors first
+  // sum across these down to scalars
+  // splitting the SIMD
+  //int MFrvol = rd*Lblock*Rblock*Nmom*Ns*Ns;
+  //int MFlvol = ld*Lblock*Rblock*Nmom*Ns*Ns;
+  int MFrvol = rd*Lblock*Rblock*gammas1.size();
+  int MFlvol = ld*Lblock*Rblock*gammas1.size();
+
+  //Vector<SpinMatrix_v > lvSum(MFrvol);
+  Vector<Scalar_v > lvSum(MFrvol);
+  thread_for( r, MFrvol,{
+    lvSum[r] = Zero();
+  });
+
+  //Vector<SpinMatrix_s > lsSum(MFlvol);
+  Vector<Scalar_s > lsSum(MFlvol);
+  thread_for(r,MFlvol,{
+    lsSum[r]=scalar_type(0.0);
+  });
+
+  int e1=    grid->_slice_nblock[orthogdim];
+  int e2=    grid->_slice_block [orthogdim];
+  int stride=grid->_slice_stride[orthogdim];
+
+  // potentially wasting cores here if local time extent too small
+  if (t_kernel) *t_kernel = -usecond();
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+      for(int b=0;b<e2;b++){
+
+	int ss= so+n*stride+b;
+	for(int i=0;i<Lblock;i++){
+
+	  auto lhs_v = lhs_wi[i].View();
+	  auto left = conjugate(lhs_v[ss]);
+	  for(int j=0;j<Rblock;j++){
+
+	    auto rhs_v = rhs_vj[j].View();
+	    auto right = rhs_v[ss];
+	    SpinMatrix_v tmp;
+	    for(int s1=0;s1<Ns;s1++)
+	    for(int s2=0;s2<Ns;s2++){
+	      tmp()(s1,s2)()
+		= left()(s2)(0) * right()(s1)(0)
+		+ left()(s2)(1) * right()(s1)(1)
+		+ left()(s2)(2) * right()(s1)(2);
+	    }
+	    int base = gammas1.size()*(i+Lblock*(j+Rblock*r));
+	    int ngam = 0;
+	    for(int ig=0;ig<gammas1.size();++ig)
+	    for(int mu=0;mu<gammas1[ig].size();++mu){
+	      Scalar_v scl; Trace(scl,tmp,Gamma(gammas1[ig][mu]));// v1 2s or less
+	      //SpinMatrix_v tmp2 = tmp * Gamma(gammas1[mu]);// v2  3+s
+	      //SpinMatrix_v tmp2 = tmp;// v3  1s
+	      /*
+	      Scalar_v scl;
+	      scl()()()
+		= ( tmp2()(0,0)()+tmp2()(1,1)()
+		   +tmp2()(2,2)()+tmp2()(3,3)() );
+	      */
+	      lvSum[ig+base]()()() += scl()()() * loop_s[ngam+Ngamma*ss]()()();
+	      ++ngam;
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  Ngamma = gammas1.size();
+  // Sum across simd lanes in the plane, breaking out orthog dir.
+  thread_for(rt,rd,{
+
+    Coordinate icoor(Nd);
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+
+    for(int j=0;j<Rblock;j++){
+    for(int i=0;i<Lblock;i++){
+    for(int mu=0;mu<Ngamma;mu++){
+
+      int ij_rdx = mu+Ngamma*(i+Lblock*(j+Rblock*rt));
+
+      extract(lvSum[ij_rdx],extracted);
+
+      for(int idx=0;idx<Nsimd;idx++){
+
+	grid->iCoorFromIindex(icoor,idx);
+
+	int ldx    = rt+icoor[orthogdim]*rd;
+
+	int ij_ldx = mu+Ngamma*(i+Lblock*(j+Rblock*ldx));
+
+	lsSum[ij_ldx]=lsSum[ij_ldx]+extracted[idx];
+	//std::cout << "AAA " << lsSum[ij_ldx] << std::endl;
+      }
+    }}}
+  });
+  if (t_kernel) *t_kernel += usecond();
+  assert(mat.dimension(0) == 1);
+  assert(mat.dimension(1) == Ngamma);
+  assert(mat.dimension(2) == Nt);
+
+  // ld loop and local only??
+  int pd = grid->_processors[orthogdim];
+  int pc = grid->_processor_coor[orthogdim];
+  thread_for_collapse(2,lt,ld,{
+    for(int pt=0;pt<pd;pt++){
+      int t = lt + pt*ld;
+      if (pt == pc){
+	for(int j=0;j<Rblock;j++){
+	for(int i=0;i<Lblock;i++){
+	for(int mu=0;mu<Ngamma;mu++){
+	  int ij_dx = mu+Ngamma*(i+Lblock*(j+Rblock*lt));
+	      // this is a bit slow
+	  //std::cout << "BBB " << lsSum[ij_dx] << std::endl;
+	    mat(0,mu,t,i,j) = lsSum[ij_dx];
+	}}}
+      } else {
+	const scalar_type zz(0.0);
+	for(int i=0;i<Lblock;i++){
+	  for(int j=0;j<Rblock;j++){
+	    for(int mu=0;mu<Ngamma;mu++){
+	      //std::cout << "CCC " << zz << std::endl;
+	      mat(0,mu,t,i,j) =zz;
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  ////////////////////////////////////////////////////////////////////
+  // This global sum is taking as much as 50% of time on 16 nodes
+  // Vector size is 7 x 16 x 32 x 16 x 16 x sizeof(complex) = 2MB - 60MB depending on volume
+  // Healthy size that should suffice
+  ////////////////////////////////////////////////////////////////////
+  if (t_gsum) *t_gsum = -usecond();
+  grid->GlobalSumVector(&mat(0,0,0,0,0),Ngamma*Nt*Lblock*Rblock);
+  if (t_gsum) *t_gsum += usecond();
+}
+
+// for type 1
+template <class FImpl>
+template <typename TensorType>
+void A2Autils<FImpl>::ExtendedMesonField(
+				 TensorType &mat,
+				 const std::vector<SpinColourMatrix_v > &loop_m,
+				 const FermionField *lhs_wi,
+				 const FermionField *rhs_vj,
+				 std::vector<Gamma::Algebra> gammas1,
+				 std::vector<Gamma::Algebra> gammas2,
+				 const std::vector<ComplexField > &mom,
+				 double *t_kernel, double *t_gsum) 
+{
+  /*
+  typedef typename FImpl::SiteSpinor vobj;
+
+  typedef typename vobj::scalar_object sobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef typename vobj::vector_type vector_type;
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iSpinMatrix<scalar_type> SpinMatrix_s;
+  */
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  
+  int Lblock = mat.dimension(3); 
+  int Rblock = mat.dimension(4);
+
+  const int orthogdim = 3;
+
+  GridBase *grid = lhs_wi[0].Grid();
+  
+  const int    Nd = grid->_ndimension;
+  const int Nsimd = grid->Nsimd();
+
+  int Nt     = grid->GlobalDimensions()[orthogdim];
+  int Ngamma = gammas1.size();
+  int Nmom   = mom.size();
+
+  int ld=grid->_ldimensions[orthogdim];
+  int rd=grid->_rdimensions[orthogdim];
+
+  // will locally sum vectors first
+  // sum across these down to scalars
+  // splitting the SIMD
+  int MFrvol = rd*Lblock*Rblock*Nmom*Ns*Ns;
+  int MFlvol = ld*Lblock*Rblock*Nmom*Ns*Ns;
+
+  //Vector<SpinMatrix_v > lvSum(MFrvol);
+  Vector<Scalar_v > lvSum(MFrvol);
+  thread_for( r, MFrvol,{
+    lvSum[r] = Zero();
+  });
+
+  //Vector<SpinMatrix_s > lsSum(MFlvol);
+  Vector<Scalar_s > lsSum(MFlvol);
+  thread_for(r,MFlvol,{
+    lsSum[r]=scalar_type(0.0);
+  });
+
+  int e1=    grid->_slice_nblock[orthogdim];
+  int e2=    grid->_slice_block [orthogdim];
+  int stride=grid->_slice_stride[orthogdim];
+
+  // potentially wasting cores here if local time extent too small
+  if (t_kernel) *t_kernel = -usecond();
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+      for(int b=0;b<e2;b++){
+
+	int ss= so+n*stride+b;
+	//SpinColourMatrix_v sc_mtx = loop_m[ss];
+	/*
+	ExtractBuffer<SpinColourMatrix_v> extracted(1);
+	extract(loop_m[ss],extracted);
+	SpinColourMatrix_v sc_mtx = extracted[0];
+	*/
+
+	// Gamma1 mult with loop mtx
+	// Doesn't have to be in the loop over block but believe it doesn't cost
+        for(int mu1=0;mu1<Ngamma;++mu1){
+	  //SpinColourMatrix_v WM = Gamma(gammas1[mu1]) * loop_m[ss];
+	  SpinColourMatrix_v WM = Gamma(gammas1[mu1]) * loop_m[ss] * Gamma(gammas2[mu1]);
+	  for(int i=0;i<Lblock;i++){
+
+	    auto lhs_v = lhs_wi[i].View();
+	    auto left = conjugate(lhs_v[ss]);
+
+	    SpinColourVector_v left_v = Zero();
+	    for(int s=0;s<Ns;++s)
+	    for(int c=0;c<Nc;++c){
+	      left_v()(s)(c)
+		= left()(0)(0) * WM()(0,s)(0,c)
+		+ left()(1)(0) * WM()(1,s)(0,c)
+		+ left()(2)(0) * WM()(2,s)(0,c)
+		+ left()(3)(0) * WM()(3,s)(0,c)
+		+ left()(0)(1) * WM()(0,s)(1,c)
+		+ left()(1)(1) * WM()(1,s)(1,c)
+		+ left()(2)(1) * WM()(2,s)(1,c)
+		+ left()(3)(1) * WM()(3,s)(1,c)
+		+ left()(0)(2) * WM()(0,s)(2,c)
+		+ left()(1)(2) * WM()(1,s)(2,c)
+		+ left()(2)(2) * WM()(2,s)(2,c)
+		+ left()(3)(2) * WM()(3,s)(2,c);
+	    }
+	    for(int j=0;j<Rblock;j++){
+	      int idx = mu1+Ngamma*(i+Lblock*(j+Rblock*r));
+	      auto rhs_v = rhs_vj[j].View();
+	      //auto right = Gamma(gammas2[mu1]) * rhs_v[ss];
+	      auto right = rhs_v[ss];
+	      for(int s=0;s<Ns;++s)
+	      for(int c=0;c<Nc;++c){
+		lvSum[idx]()()() += left_v()(s)(c) * right()(s)(c);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  // Sum across simd lanes in the plane, breaking out orthog dir.
+  thread_for(rt,rd,{
+
+    Coordinate icoor(Nd);
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+
+    for(int j=0;j<Rblock;j++){
+    for(int i=0;i<Lblock;i++){
+    for(int mu=0;mu<Ngamma;mu++){
+    for(int m=0;m<Nmom;m++){
+
+      int ij_rdx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*rt)));
+
+      extract(lvSum[ij_rdx],extracted);
+
+      for(int idx=0;idx<Nsimd;idx++){
+
+	grid->iCoorFromIindex(icoor,idx);
+
+	int ldx    = rt+icoor[orthogdim]*rd;
+
+	int ij_ldx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*ldx)));
+
+	lsSum[ij_ldx]=lsSum[ij_ldx]+extracted[idx];
+
+      }
+    }}}}
+  });
+  if (t_kernel) *t_kernel += usecond();
+  assert(mat.dimension(0) == Nmom);
+  assert(mat.dimension(1) == Ngamma);
+  assert(mat.dimension(2) == Nt);
+
+  // ld loop and local only??
+  int pd = grid->_processors[orthogdim];
+  int pc = grid->_processor_coor[orthogdim];
+  thread_for_collapse(2,lt,ld,{
+    for(int pt=0;pt<pd;pt++){
+      int t = lt + pt*ld;
+      if (pt == pc){
+	for(int j=0;j<Rblock;j++){
+	for(int i=0;i<Lblock;i++){
+	for(int mu=0;mu<Ngamma;mu++){
+	for(int m=0;m<Nmom;m++){
+	  int ij_dx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*lt)));
+	      // this is a bit slow
+	    mat(m,mu,t,i,j) = lsSum[ij_dx];
+	}}}}
+      } else {
+	const scalar_type zz(0.0);
+	for(int i=0;i<Lblock;i++){
+	  for(int j=0;j<Rblock;j++){
+	    for(int mu=0;mu<Ngamma;mu++){
+	      for(int m=0;m<Nmom;m++){
+		mat(m,mu,t,i,j) =zz;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  ////////////////////////////////////////////////////////////////////
+  // This global sum is taking as much as 50% of time on 16 nodes
+  // Vector size is 7 x 16 x 32 x 16 x 16 x sizeof(complex) = 2MB - 60MB depending on volume
+  // Healthy size that should suffice
+  ////////////////////////////////////////////////////////////////////
+  if (t_gsum) *t_gsum = -usecond();
+  grid->GlobalSumVector(&mat(0,0,0,0,0),Nmom*Ngamma*Nt*Lblock*Rblock);
+  if (t_gsum) *t_gsum += usecond();
+}
+
+// for type 2
+template <class FImpl>
+template <typename TensorType>
+void A2Autils<FImpl>::ExtendedMesonField(
+				 TensorType &mat,
+				 const std::vector<ColourMatrix_v > &loop_cm,
+				 const FermionField *lhs_wi,
+				 const FermionField *rhs_vj,
+				 std::vector<Gamma::Algebra> gammas,
+				 const std::vector<ComplexField > &mom,
+				 double *t_kernel, double *t_gsum) 
+{
+  /*
+  typedef typename FImpl::SiteSpinor vobj;
+
+  typedef typename vobj::scalar_object sobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef typename vobj::vector_type vector_type;
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iSpinMatrix<scalar_type> SpinMatrix_s;
+  */
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  
+  int Lblock = mat.dimension(3); 
+  int Rblock = mat.dimension(4);
+
+  const int orthogdim = 3;
+
+  GridBase *grid = lhs_wi[0].Grid();
+  
+  const int    Nd = grid->_ndimension;
+  const int Nsimd = grid->Nsimd();
+
+  int Nt     = grid->GlobalDimensions()[orthogdim];
+  int Ngamma = gammas.size();
+  int Nmom   = mom.size();
+
+  int ld=grid->_ldimensions[orthogdim];
+  int rd=grid->_rdimensions[orthogdim];
+
+  // will locally sum vectors first
+  // sum across these down to scalars
+  // splitting the SIMD
+  int MFrvol = rd*Lblock*Rblock*Nmom*Ns*Ns;
+  int MFlvol = ld*Lblock*Rblock*Nmom*Ns*Ns;
+
+  //Vector<SpinMatrix_v > lvSum(MFrvol);
+  Vector<Scalar_v > lvSum(MFrvol);
+  thread_for( r, MFrvol,{
+    lvSum[r] = Zero();
+  });
+
+  //Vector<SpinMatrix_s > lsSum(MFlvol);
+  Vector<Scalar_s > lsSum(MFlvol);
+  thread_for(r,MFlvol,{
+    lsSum[r]=scalar_type(0.0);
+  });
+
+  int e1=    grid->_slice_nblock[orthogdim];
+  int e2=    grid->_slice_block [orthogdim];
+  int stride=grid->_slice_stride[orthogdim];
+
+  // potentially wasting cores here if local time extent too small
+  if (t_kernel) *t_kernel = -usecond();
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+      for(int b=0;b<e2;b++){
+
+	int ss= so+n*stride+b;
+	//SpinColourMatrix_v sc_mtx = loop_m[ss];
+	/*
+	ExtractBuffer<SpinColourMatrix_v> extracted(1);
+	extract(loop_m[ss],extracted);
+	SpinColourMatrix_v sc_mtx = extracted[0];
+	*/
+
+	// Gamma1 mult with loop mtx
+	// Doesn't have to be in the loop over block but believe it doesn't cost
+        for(int mu1=0;mu1<Ngamma;++mu1){
+	  ColourMatrix_v CM = loop_cm[mu1+Ngamma*ss];
+	  for(int j=0;j<Rblock;j++){
+	    auto rhs_v = rhs_vj[j].View();
+	    auto right = Gamma(gammas[mu1]) * rhs_v[ss];
+	    SpinColourVector_v right_v = Zero();
+	    for(int s=0;s<Ns;++s)
+	    for(int c=0;c<Nc;++c){
+	      right_v()(s)(c)
+		= CM()()(c,0) * right()(s)(0)
+		+ CM()()(c,1) * right()(s)(1)
+		+ CM()()(c,2) * right()(s)(2);
+	    }
+	    for(int i=0;i<Lblock;i++){
+	      int idx = mu1+Ngamma*(i+Lblock*(j+Rblock*r));
+	      auto lhs_v = lhs_wi[i].View();
+	      auto left = conjugate(lhs_v[ss]);
+	      for(int s=0;s<Ns;++s)
+	      for(int c=0;c<Nc;++c){
+		lvSum[idx]()()() += left()(s)(c) * right_v()(s)(c);
+	      }
+	    }
+	  }
+#if 0
+	  for(int i=0;i<Lblock;i++){
+
+	    auto lhs_v = lhs_wi[i].View();
+	    //auto left = conjugate(lhs_v[ss]);
+	    auto left = conjugate(lhs_v[ss]);
+
+	    SpinColourVector_v left_v = Zero();
+	    for(int s=0;s<Ns;++s)
+	    for(int c=0;c<Nc;++c){
+	      left_v()(s)(c)
+		= left()(s)(0) * CM()()(0,c)
+		+ left()(s)(1) * CM()()(1,c)
+		+ left()(s)(2) * CM()()(2,c);
+	    }
+	    for(int j=0;j<Rblock;j++){
+	      int idx = mu1+Ngamma*(i+Lblock*(j+Rblock*r));
+	      auto rhs_v = rhs_vj[j].View();
+	      //auto right = Gamma(gammas[mu1]) * rhs_v[ss];
+	      auto right = rhs_v[ss];
+	      for(int s=0;s<Ns;++s)
+	      for(int c=0;c<Nc;++c){
+		lvSum[idx]()()() += left_v()(s)(c) * right()(s)(c);
+	      }
+	    }
+	  }
+#endif
+	}
+      }
+    }
+  });
+
+  // Sum across simd lanes in the plane, breaking out orthog dir.
+  thread_for(rt,rd,{
+
+    Coordinate icoor(Nd);
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+
+    for(int j=0;j<Rblock;j++){
+    for(int i=0;i<Lblock;i++){
+    for(int mu=0;mu<Ngamma;mu++){
+    for(int m=0;m<Nmom;m++){
+
+      int ij_rdx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*rt)));
+
+      extract(lvSum[ij_rdx],extracted);
+
+      for(int idx=0;idx<Nsimd;idx++){
+
+	grid->iCoorFromIindex(icoor,idx);
+
+	int ldx    = rt+icoor[orthogdim]*rd;
+
+	int ij_ldx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*ldx)));
+
+	lsSum[ij_ldx]=lsSum[ij_ldx]+extracted[idx];
+
+      }
+    }}}}
+  });
+  if (t_kernel) *t_kernel += usecond();
+  assert(mat.dimension(0) == Nmom);
+  assert(mat.dimension(1) == Ngamma);
+  assert(mat.dimension(2) == Nt);
+
+  // ld loop and local only??
+  int pd = grid->_processors[orthogdim];
+  int pc = grid->_processor_coor[orthogdim];
+  thread_for_collapse(2,lt,ld,{
+    for(int pt=0;pt<pd;pt++){
+      int t = lt + pt*ld;
+      if (pt == pc){
+	for(int j=0;j<Rblock;j++){
+	for(int i=0;i<Lblock;i++){
+	for(int mu=0;mu<Ngamma;mu++){
+	for(int m=0;m<Nmom;m++){
+	  int ij_dx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*lt)));
+	      // this is a bit slow
+	    mat(m,mu,t,i,j) = lsSum[ij_dx];
+	}}}}
+      } else {
+	const scalar_type zz(0.0);
+	for(int i=0;i<Lblock;i++){
+	  for(int j=0;j<Rblock;j++){
+	    for(int mu=0;mu<Ngamma;mu++){
+	      for(int m=0;m<Nmom;m++){
+		mat(m,mu,t,i,j) =zz;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  ////////////////////////////////////////////////////////////////////
+  // This global sum is taking as much as 50% of time on 16 nodes
+  // Vector size is 7 x 16 x 32 x 16 x 16 x sizeof(complex) = 2MB - 60MB depending on volume
+  // Healthy size that should suffice
+  ////////////////////////////////////////////////////////////////////
+  if (t_gsum) *t_gsum = -usecond();
+  grid->GlobalSumVector(&mat(0,0,0,0,0),Nmom*Ngamma*Nt*Lblock*Rblock);
+  if (t_gsum) *t_gsum += usecond();
+}
+
+// for type 3
+template <class FImpl>
+template <typename TensorType>
+void A2Autils<FImpl>::ExtendedMesonField(
+				 TensorType &mat,
+				 const std::vector<SpinMatrix_v > &loop_m,
+				 const FermionField *lhs_wi,
+				 const FermionField *rhs_vj,
+				 std::vector<Gamma::Algebra> gammas1,
+				 std::vector<Gamma::Algebra> gammas2,
+				 const std::vector<ComplexField > &mom,
+				 double *t_kernel, double *t_gsum) 
+{
+  /*
+  typedef typename FImpl::SiteSpinor vobj;
+
+  typedef typename vobj::scalar_object sobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef typename vobj::vector_type vector_type;
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iSpinMatrix<scalar_type> SpinMatrix_s;
+  */
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+
+  int Lblock = mat.dimension(3); 
+  int Rblock = mat.dimension(4);
+
+  const int orthogdim = 3;
+
+  GridBase *grid = lhs_wi[0].Grid();
+
+  const int    Nd = grid->_ndimension;
+  const int Nsimd = grid->Nsimd();
+
+  int Nt     = grid->GlobalDimensions()[orthogdim];
+  int Ngamma = gammas1.size();
+  int Nmom   = mom.size();
+
+  int ld=grid->_ldimensions[orthogdim];
+  int rd=grid->_rdimensions[orthogdim];
+
+  // will locally sum vectors first
+  // sum across these down to scalars
+  // splitting the SIMD
+  int MFrvol = rd*Lblock*Rblock*Nmom*Ns*Ns;
+  int MFlvol = ld*Lblock*Rblock*Nmom*Ns*Ns;
+
+  //Vector<SpinMatrix_v > lvSum(MFrvol);
+  Vector<Scalar_v > lvSum(MFrvol);
+  thread_for( r, MFrvol,{
+    lvSum[r] = Zero();
+  });
+
+  //Vector<SpinMatrix_s > lsSum(MFlvol);
+  Vector<Scalar_s > lsSum(MFlvol);
+  thread_for(r,MFlvol,{
+    lsSum[r]=scalar_type(0.0);
+  });
+
+  int e1=    grid->_slice_nblock[orthogdim];
+  int e2=    grid->_slice_block [orthogdim];
+  int stride=grid->_slice_stride[orthogdim];
+
+  // potentially wasting cores here if local time extent too small
+  if (t_kernel) *t_kernel = -usecond();
+  thread_for(r,rd,{
+
+    int so=r*grid->_ostride[orthogdim]; // base offset for start of plane 
+
+    for(int n=0;n<e1;n++){
+      for(int b=0;b<e2;b++){
+
+	int ss= so+n*stride+b;
+
+	// Gamma1 mult with loop mtx
+	// Doesn't have to be in the loop over block but believe it doesn't cost
+        for(int mu1=0;mu1<Ngamma;++mu1){
+	  //SpinMatrix_v SM = Gamma(gammas1[mu1]) * loop_m[ss];
+	  SpinMatrix_v SM = Gamma(gammas1[mu1]) * loop_m[ss] * Gamma(gammas2[mu1]);
+	  for(int i=0;i<Lblock;i++){
+
+	    auto lhs_v = lhs_wi[i].View();
+	    auto left = conjugate(lhs_v[ss]);
+
+	    SpinColourVector_v left_v = Zero();
+	    for(int s=0;s<Ns;++s)
+	    for(int c=0;c<Nc;++c){
+	      left_v()(s)(c)
+		= left()(0)(c) * SM()(0,s)()
+		+ left()(1)(c) * SM()(1,s)()
+		+ left()(2)(c) * SM()(2,s)()
+		+ left()(3)(c) * SM()(3,s)();
+	    }
+	    for(int j=0;j<Rblock;j++){
+	      int idx = mu1+Ngamma*(i+Lblock*(j+Rblock*r));
+	      auto rhs_v = rhs_vj[j].View();
+	      //auto right = Gamma(gammas2[mu1]) * rhs_v[ss];
+	      auto right = rhs_v[ss];
+	      for(int s=0;s<Ns;++s)
+	      for(int c=0;c<Nc;++c){
+		lvSum[idx]()()() += left_v()(s)(c) * right()(s)(c);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  // Sum across simd lanes in the plane, breaking out orthog dir.
+  thread_for(rt,rd,{
+
+    Coordinate icoor(Nd);
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+
+    for(int j=0;j<Rblock;j++){
+    for(int i=0;i<Lblock;i++){
+    for(int mu=0;mu<Ngamma;mu++){
+    for(int m=0;m<Nmom;m++){
+
+      int ij_rdx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*rt)));
+
+      extract(lvSum[ij_rdx],extracted);
+
+      for(int idx=0;idx<Nsimd;idx++){
+
+	grid->iCoorFromIindex(icoor,idx);
+
+	int ldx    = rt+icoor[orthogdim]*rd;
+
+	int ij_ldx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*ldx)));
+
+	lsSum[ij_ldx]=lsSum[ij_ldx]+extracted[idx];
+
+      }
+    }}}}
+  });
+  if (t_kernel) *t_kernel += usecond();
+  assert(mat.dimension(0) == Nmom);
+  assert(mat.dimension(1) == Ngamma);
+  assert(mat.dimension(2) == Nt);
+
+  // ld loop and local only??
+  int pd = grid->_processors[orthogdim];
+  int pc = grid->_processor_coor[orthogdim];
+  thread_for_collapse(2,lt,ld,{
+    for(int pt=0;pt<pd;pt++){
+      int t = lt + pt*ld;
+      if (pt == pc){
+	for(int j=0;j<Rblock;j++){
+	for(int i=0;i<Lblock;i++){
+	for(int mu=0;mu<Ngamma;mu++){
+	for(int m=0;m<Nmom;m++){
+	  int ij_dx = m+Nmom*(mu+Ngamma*(i+Lblock*(j+Rblock*lt)));
+	      // this is a bit slow
+	    mat(m,mu,t,i,j) = lsSum[ij_dx];
+	}}}}
+      } else {
+	const scalar_type zz(0.0);
+	for(int i=0;i<Lblock;i++){
+	  for(int j=0;j<Rblock;j++){
+	    for(int mu=0;mu<Ngamma;mu++){
+	      for(int m=0;m<Nmom;m++){
+		mat(m,mu,t,i,j) =zz;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  });
+
+  ////////////////////////////////////////////////////////////////////
+  // This global sum is taking as much as 50% of time on 16 nodes
+  // Vector size is 7 x 16 x 32 x 16 x 16 x sizeof(complex) = 2MB - 60MB depending on volume
+  // Healthy size that should suffice
+  ////////////////////////////////////////////////////////////////////
+  if (t_gsum) *t_gsum = -usecond();
+  grid->GlobalSumVector(&mat(0,0,0,0,0),Nmom*Ngamma*Nt*Lblock*Rblock);
+  if (t_gsum) *t_gsum += usecond();
+}
+
 
 
 ///////////////////////////////////////////////////////////////////

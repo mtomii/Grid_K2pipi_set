@@ -349,6 +349,7 @@ public:
   void calcFine(ChebyParams cheby_parms,int Nstop,int Nk,int Nm,RealD resid, 
 		RealD MaxIt, RealD betastp, int MinRes)
   {
+    std::cout << nbasis << " " << Nm << " " << Nk << " " << Nstop;
     assert(nbasis<=Nm);
     Chebyshev<FineField>      Cheby(cheby_parms);
     FunctionHermOp<FineField> ChebyOp(Cheby,_FineOp);
@@ -369,6 +370,8 @@ public:
     IRL.calc(evals_fine,subspace,src,Nconv,false);
     
     // Shrink down to number saved
+    std::cout << nbasis << " " << Nm << " " << Nk << " " << Nstop;
+    if (Nstop<nbasis) std::cout << Nstop << " " << nbasis << std::endl;
     assert(Nstop>=nbasis);
     assert(Nconv>=nbasis);
     evals_fine.resize(nbasis);

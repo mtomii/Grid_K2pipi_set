@@ -47,7 +47,6 @@ int main(int argc, char *argv[])
     
     // initialization
     Grid_init(&argc, &argv);
-    
     // execution
     try
     {
@@ -60,6 +59,7 @@ int main(int argc, char *argv[])
     {
         Exceptions::abort(e);
     }
+    std::cout << "III" << std::endl;
     
     // epilogue
     LOG(Message) << "Grid is finalizing now" << std::endl;

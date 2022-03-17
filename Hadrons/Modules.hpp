@@ -7,8 +7,12 @@
 #include <Hadrons/Modules/MContraction/A2AAslashField.hpp>
 #include <Hadrons/Modules/MContraction/A2AFourQuarkContraction.hpp>
 #include <Hadrons/Modules/MContraction/A2ALoop.hpp>
+#include <Hadrons/Modules/MContraction/A2AMonsterLoop.hpp>
+#include <Hadrons/Modules/MContraction/A2ACoarseGrid.hpp>
 #include <Hadrons/Modules/MContraction/A2AMesonField.hpp>
-#include <Hadrons/Modules/MContraction/Baryon.hpp>
+#include <Hadrons/Modules/MContraction/MultMesonField.hpp>
+#include <Hadrons/Modules/MContraction/A2AExtendedMesonField.hpp>
+#include <Hadrons/Modules/MContraction/A2AMonsterMesonField.hpp>
 #include <Hadrons/Modules/MContraction/DiscLoop.hpp>
 #include <Hadrons/Modules/MContraction/Gamma3pt.hpp>
 #include <Hadrons/Modules/MContraction/Meson.hpp>
@@ -37,6 +41,8 @@
 #include <Hadrons/Modules/MGauge/Unit.hpp>
 #include <Hadrons/Modules/MIO/LoadA2AMatrixDiskVector.hpp>
 #include <Hadrons/Modules/MIO/LoadA2AVectors.hpp>
+#include <Hadrons/Modules/MIO/LoadBinnedA2AVecs.hpp>
+//#include <Hadrons/Modules/MIO/LoadDilutedNoise.hpp>
 #include <Hadrons/Modules/MIO/LoadBinary.hpp>
 #include <Hadrons/Modules/MIO/LoadCoarseEigenPack.hpp>
 #include <Hadrons/Modules/MIO/LoadCosmHol.hpp>
@@ -68,6 +74,7 @@
 #include <Hadrons/Modules/MSink/Smear.hpp>
 #include <Hadrons/Modules/MSolver/A2AAslashVectors.hpp>
 #include <Hadrons/Modules/MSolver/A2AVectors.hpp>
+#include <Hadrons/Modules/MSolver/A2AVectorsV.hpp>
 #include <Hadrons/Modules/MSolver/Guesser.hpp>
 #include <Hadrons/Modules/MSolver/LocalCoherenceLanczos.hpp>
 #include <Hadrons/Modules/MSolver/MixedPrecisionRBPrecCG.hpp>
@@ -85,3 +92,4 @@
 #include <Hadrons/Modules/MSource/Z2.hpp>
 #include <Hadrons/Modules/MUtilities/PrecisionCast.hpp>
 #include <Hadrons/Modules/MUtilities/RandomVectors.hpp>
+#include <Modules/MUtilities/A2ACovariantSmear.hpp>

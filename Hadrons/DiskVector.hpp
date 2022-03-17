@@ -50,7 +50,7 @@ template <typename T>
 class DiskVectorBase
 {
 public:
-    typedef T ObjectType;
+  //typedef T ObjectType;
 
     // helper for read/write vector access
     class RwAccessHelper
@@ -159,7 +159,7 @@ class EigenDiskVector: public DiskVectorBase<EigenDiskVectorMat<T>>
 {
 public:
     using DiskVectorBase<EigenDiskVectorMat<T>>::DiskVectorBase;
-    typedef EigenDiskVectorMat<T> Matrix;
+  //typedef EigenDiskVectorMat<T> Matrix;
 public:
     T operator()(const unsigned int i, const Eigen::Index j,
                  const Eigen::Index k) const
