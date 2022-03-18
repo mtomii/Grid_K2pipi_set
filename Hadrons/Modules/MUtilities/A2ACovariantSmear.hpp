@@ -120,10 +120,7 @@ void TA2ACovariantSmear<GImpl, FImpl>::execute(void)
   if (!par().output.empty())
   {
     startTimer("I/O");
-    for (int i = 0; i < Ni; i++)
-    {
-      A2AVectorsIo::write(par().output, a2aSmr[i], par().multiFile, vm().getTrajectory());
-    }
+    A2AVectorsIo::write(par().output, a2aSmr, par().multiFile, vm().getTrajectory());
     stopTimer("I/O");
   }
 }
