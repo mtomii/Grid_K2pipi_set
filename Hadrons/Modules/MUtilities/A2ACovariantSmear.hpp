@@ -79,7 +79,7 @@ template <typename GImpl, typename FImpl>
 void TA2ACovariantSmear<GImpl, FImpl>::setup(void)
 {
   auto &a2aVec = envGet(std::vector<FermionField>, par().a2aVectors);
-  envCreate(std::vector<FermionField>, getName(), 1, a2aVec.size,
+  envCreate(std::vector<FermionField>, getName(), 1, a2aVec.size(),
 	    envGetGrid(FermionField));
 }
 
