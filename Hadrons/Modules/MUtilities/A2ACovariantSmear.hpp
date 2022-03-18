@@ -85,44 +85,47 @@ void TA2ACovariantSmear<GImpl, FImpl>::setup(void)
 template <typename GImpl, typename FImpl>
 void TA2ACovariantSmear<GImpl, FImpl>::execute(void)
 {
-	auto &a2aVec = envGet(std::vector<FermionField>, par().a2aVectors);
-	unsigned int Ni = a2aVec.size();
+  auto &a2aVec = envGet(std::vector<FermionField>, par().a2aVectors);
+  unsigned int Ni = a2aVec.size();
 
-	const auto &U = envGet(GaugeField, par().gauge);
+  const auto &U = envGet(GaugeField, par().gauge);
 
-	std::vector<LatticeColourMatrix> Umu(Nd,env().getGrid());
-	for(int i=0;i<Nd;i++)
-	{
-        Umu[i] = PeekIndex<LorentzIndex>(U,i);
-	}
+  std::vector<LatticeColourMatrix> Umu(Nd,env().getGrid());
+  for(int i=0;i<Nd;i++)
+  {
+    Umu[i] = PeekIndex<LorentzIndex>(U,i);
+  }
 	
-    auto &a2aTmp = envGet(FermionField, getName());
+  auto &a2aSmr = envGet(std::vector<FermionField>, getName());
 	
-	RealD width = par().alpha;
-	unsigned int iterations = par().N;
-	unsigned int orthog_axis = par().orthog_axis;
+  RealD width = par().alpha;
+  unsigned int iterations = par().N;
+  unsigned int orthog_axis = par().orthog_axis;
 
-    LOG(Message) << "Starting A2A covariant smearing." << std::endl;
-    LOG(Message) << par().a2aVectors << " has size " << Ni << std::endl;
+  LOG(Message) << "Starting A2A covariant smearing." << std::endl;
+  LOG(Message) << par().a2aVectors << " has size " << Ni << std::endl;
     
-	CovariantSmearing<GImpl> CovSmear;
+  CovariantSmearing<GImpl> CovSmear;
 	
-	for (int i = 0; i < Ni; i++)
-	{
-		a2aTmp = a2aVec[i];
+  for (int i = 0; i < Ni; i++)
+  {
+    a2aSmr[i] = a2aVec[i];
 
-        CovSmear.template GaussianSmear<FermionField>(Umu, a2aTmp, width, iterations, orthog_axis);
-		a2aVec[i] = a2aTmp;
-	}
+    CovSmear.template GaussianSmear<FermionField>(Umu, a2aSmr[i], width, iterations, orthog_axis);
+  }
 
-    // I/O if necessary
-    if (!par().output.empty())
+  // I/O if necessary,
+  // !!! Probably not needed as smearing is cheap
+  // !!!  but consider binned IO if implement
+  if (!par().output.empty())
+  {
+    startTimer("I/O");
+    for (int i = 0; i < Ni; i++)
     {
-        startTimer("I/O");
-        A2AVectorsIo::write(par().output, a2aVec, par().multiFile, vm().getTrajectory());
-        stopTimer("I/O");
+      A2AVectorsIo::write(par().output, a2aSmr[i], par().multiFile, vm().getTrajectory());
     }
-    
+    stopTimer("I/O");
+  }
 }
 
 END_MODULE_NAMESPACE
