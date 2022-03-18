@@ -87,7 +87,7 @@ void TA2ACovariantSmear<GImpl, FImpl>::setup(void)
 template <typename GImpl, typename FImpl>
 void TA2ACovariantSmear<GImpl, FImpl>::execute(void)
 {
-  auto &a2aVec = envGet(std::vector<FermionField>, par().a2aVectors);
+  const auto &a2aVec = envGet(std::vector<FermionField>, par().a2aVectors);
   unsigned int Ni = a2aVec.size();
 
   const auto &U = envGet(GaugeField, par().gauge);
