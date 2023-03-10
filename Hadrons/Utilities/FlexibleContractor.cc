@@ -439,7 +439,8 @@ int main(int argc, char* argv[])
 	    prod = prod0;
 	    for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
 	      tAr.startTimer("Disk vector overhead");
-	      unsigned int tidx = TIME_MOD(t[j]);
+	      // unsigned int tidx = TIME_MOD(t[j]);
+	      unsigned int tidx = TIME_MOD(t[j]+dt);
 	      if ( terms[j].tdps ) tidx = TIME_MOD(t[j] + tLast);
 	      const A2AMatrix<ComplexD> &ref = a2aMat.at(terms[j].term)[tidx];
 	      tAr.stopTimer("Disk vector overhead");
