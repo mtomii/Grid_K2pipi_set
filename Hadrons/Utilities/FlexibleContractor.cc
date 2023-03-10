@@ -455,7 +455,10 @@ int main(int argc, char* argv[])
 	      bytesp += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
 	    }
 	    tAr.startTimer("tr(A*B)");
-	    A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[TIME_MOD(tLast+t[terms.size()-1])]);
+	    unsigned int tidx = TIME_MOD(t[terms.size()-1]+dt);
+	    if ( terms[terms.size()-1].tdps )
+	      tidx = TIME_MOD(t[terms.size()-1] + tLast);
+	    A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tidx]);
 	    tAr.stopTimer("tr(A*B)");
 	    flops += A2AContraction::accTrMulFlops(prod, lastTerm[TIME_MOD(tLast)]);
 	    bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
