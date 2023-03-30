@@ -327,6 +327,11 @@ int main(int argc, char* argv[])
       //	    double  tusec;
       FlexibleContractor::CorrelatorResult   result;
 
+      if ( terms[0].tdps ) {
+	std::cout << "You have to specify tdps=False for the 1st meson field of each product" << std::endl;
+	assert(!terms[0].tdps);
+      }
+
       tAr.startTimer("Total");
       std::cout << "======== Contraction tr(";
       for (unsigned int g = 0; g < terms.size(); ++g)
