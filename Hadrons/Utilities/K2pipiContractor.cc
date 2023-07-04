@@ -505,6 +505,9 @@ int main(int argc, char* argv[])
 	  {
 	    result.correlator[tLast] /= translations.size();
 	  }
+	  tAr.startTimer("Write");
+	  write(writer, fileStem, result);
+	  tAr.stopTimer("Write");
 	  //saveCorrelator(result, par.global.output, 0, traj);
 	}
       }

@@ -130,7 +130,7 @@ void makeTimeSeq(std::vector<std::vector<unsigned int>> &timeSeq,
 
     makeTimeSeq(timeSeq, times, current, times.size());
 }
-
+#if 0
 void saveCorrelator(const FlexibleContractor::CorrelatorResult &result, const std::string dir, 
                     const unsigned int dt, const unsigned int traj)
 {
@@ -158,6 +158,7 @@ void saveCorrelator(const FlexibleContractor::CorrelatorResult &result, const st
   ResultWriter writer(filename);
   write(writer, fileStem, result);
 }
+#endif
 
 std::set<unsigned int> parseTimeRange(const std::string str, const unsigned int nt)
 {
@@ -379,6 +380,26 @@ int main(int argc, char* argv[])
       bytes = par.global.nt*lastTerm[0].rows()*lastTerm[0].cols()*sizeof(ComplexD);
       std::cout << Sec(tAr.getDTimer("Transpose caching")) << " " 
 		<< Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
+
+      std::string              fileStem = "", filename, dataSet;
+      std::vector<FlexibleContractor::TermsPar> terms = result.contraction.terms;
+      for (unsigned int i = 0; i < terms.size() ; i++)
+      {
+	fileStem += terms[i].term + "_";
+	if ( terms[i].tdps ) {
+	  fileStem += "x";
+	} else {
+	  fileStem += "y";
+	}
+	fileStem += std::to_string(result.times[i]);
+	if ( i < terms.size() - 1 ) fileStem += "_";
+      }
+      const std::string dir = par.global.output;
+      makeFileDir(dir);
+      filename = dir + "/" + RESULT_FILE_NAME(fileStem, traj);
+      std::cout << "Saving correlator to '" << filename << "'" << std::endl;
+      ResultWriter writer(filename);
+
       for (unsigned int i = 0; i < timeSeq.size(); ++i)
       {
 	unsigned int dti = 0;
@@ -480,21 +501,28 @@ int main(int argc, char* argv[])
 		    << Bytes(bytes, tAr.getDTimer("tr(A*B)") - busec) << std::endl;
 	  if (!p.translationAverage)
 	  {
-	    saveCorrelator(result, par.global.output, dt, traj);
+	    dataSet = fileStem + "_dt_" + std::to_string(dt);
+	    tAr.startTimer("Write");
+	    write(writer, dataSet, result);
+	    tAr.stopTimer("Write");
+	    //saveCorrelator(result, par.global.output, dt, traj);
 	    for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
 	    {
 	      result.correlator[tLast] = 0.;
 	    }
 	  }
 	  dti++;
-	}
+	} // dt
 	if (p.translationAverage)
 	{
 	  for (unsigned int tLast = 0; tLast < par.global.nt; ++tLast)
 	  {
 	    result.correlator[tLast] /= translations.size();
 	  }
-	  saveCorrelator(result, par.global.output, 0, traj);
+	  tAr.startTimer("Write");
+	  write(writer, fileStem, result);
+	  tAr.stopTimer("Write");
+	  //saveCorrelator(result, par.global.output, 0, traj);
 	}
       }
       tAr.stopTimer("Total");
