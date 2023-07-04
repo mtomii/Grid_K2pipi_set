@@ -382,7 +382,9 @@ int main(int argc, char* argv[])
 		<< Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
 
       std::string              fileStem = "", filename, dataSet;
+      std::cout << "AAA" std::endl;
       std::vector<FlexibleContractor::TermsPar> termsv = result.contraction.terms;
+      std::cout << "BBB" std::endl;
       for (unsigned int i = 0; i < termsv.size() ; i++)
       {
 	fileStem += termsv[i].term + "_";
@@ -394,8 +396,10 @@ int main(int argc, char* argv[])
 	fileStem += std::to_string(result.times[i]);
 	if ( i < termsv.size() - 1 ) fileStem += "_";
       }
+      std::cout << "CCC" std::endl;
       const std::string dir = par.global.output;
       makeFileDir(dir);
+      std::cout << "DDD" std::endl;
       filename = dir + "/" + RESULT_FILE_NAME(fileStem, traj);
       std::cout << "Saving correlator to '" << filename << "'" << std::endl;
       ResultWriter writer(filename);
