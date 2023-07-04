@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
 	  fileStem += "y";
 	}
 	//fileStem += std::to_string(result.times[i]);
-	fileStem += std::to_string(termsv[i].time);
+	fileStem += termsv[i].time;
 	if ( i < termsv.size() - 1 ) fileStem += "_";
       }
       //std::cout << "CCC" << std::endl;
