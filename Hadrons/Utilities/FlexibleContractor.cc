@@ -130,35 +130,6 @@ void makeTimeSeq(std::vector<std::vector<unsigned int>> &timeSeq,
 
     makeTimeSeq(timeSeq, times, current, times.size());
 }
-#if 0
-void saveCorrelator(const FlexibleContractor::CorrelatorResult &result, const std::string dir, 
-                    const unsigned int dt, const unsigned int traj)
-{
-  std::string              fileStem = "", filename;
-  std::vector<FlexibleContractor::TermsPar> terms = result.contraction.terms;
-
-  for (unsigned int i = 0; i < terms.size() ; i++)
-  {
-    fileStem += terms[i].term + "_";
-    if ( terms[i].tdps ) {
-      fileStem += "x";
-    } else {
-      fileStem += "y";
-    }
-    fileStem += std::to_string(result.times[i]);
-    if ( i < terms.size() - 1 ) fileStem += "_";
-  }
-  if (!result.contraction.translationAverage)
-  {
-    fileStem += "_dt_" + std::to_string(dt);
-  }
-  filename = dir + "/" + RESULT_FILE_NAME(fileStem, traj);
-  std::cout << "Saving correlator to '" << filename << "'" << std::endl;
-  makeFileDir(dir);
-  ResultWriter writer(filename);
-  write(writer, fileStem, result);
-}
-#endif
 
 std::set<unsigned int> parseTimeRange(const std::string str, const unsigned int nt)
 {
@@ -354,11 +325,6 @@ int main(int argc, char* argv[])
 
       translations = parseTimeRange(p.translations, par.global.nt);
       makeTimeSeq(timeSeq, times);
-#if 0
-      std::cout << timeSeq.size()*translations.size()*(terms.size() - 2) << " A*B, "
-		<< timeSeq.size()*translations.size()*par.global.nt << " tr(A*B)"
-		<< std::endl;
-#endif
 
       std::cout << "* Caching transposed last term " << std::endl;
       for (unsigned int t = 0; t < par.global.nt; ++t)
@@ -382,9 +348,7 @@ int main(int argc, char* argv[])
 		<< Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
 
       std::string              fileStem = "", filename, dataSet;
-      //std::cout << "AAA" << std::endl;
       std::vector<FlexibleContractor::TermsPar> termsv = result.contraction.terms;
-      //std::cout << "BBB" << std::endl;
       for (unsigned int i = 0; i < termsv.size() ; i++)
       {
 	fileStem += termsv[i].term + "_";
@@ -393,14 +357,11 @@ int main(int argc, char* argv[])
 	} else {
 	  fileStem += "y";
 	}
-	//fileStem += std::to_string(result.times[i]);
 	fileStem += termsv[i].time;
 	if ( i < termsv.size() - 1 ) fileStem += "_";
       }
-      //std::cout << "CCC" << std::endl;
       const std::string dir = par.global.output;
       makeFileDir(dir);
-      //std::cout << "DDD" << std::endl;
       filename = dir + "/" + RESULT_FILE_NAME(fileStem, traj);
       std::cout << "Saving correlator to '" << filename << "'" << std::endl;
       ResultWriter writer(filename);
@@ -470,7 +431,6 @@ int main(int argc, char* argv[])
 	    prod = prod0;
 	    for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
 	      tAr.startTimer("Disk vector overhead");
-	      // unsigned int tidx = TIME_MOD(t[j]);
 	      unsigned int tidx = TIME_MOD(t[j]+dt);
 	      if ( terms[j].tdps ) tidx = TIME_MOD(t[j] + tLast);
 	      const A2AMatrix<ComplexD> &ref = a2aMat.at(terms[j].term)[tidx];

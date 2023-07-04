@@ -87,11 +87,6 @@ namespace Contractor
     {
     public:
         GRID_SERIALIZABLE_CLASS_MEMBERS(CorrelatorResult,
-#if 0
-                                        std::vector<Contractor::A2AMatrixPar>,  a2aMatrix,
-                                        std::vector<std::string>,  a2aMatrixLast,
-                                        ProductPar, contraction,
-#endif
                                         std::vector<unsigned int>, times,
                                         std::vector<ComplexD>, correlator);
     };
@@ -131,32 +126,7 @@ void makeTimeSeq(std::vector<std::vector<unsigned int>> &timeSeq,
 
     makeTimeSeq(timeSeq, times, current, times.size());
 }
-#if 0
-void saveCorrelator(const Contractor::CorrelatorResult &result, const std::string dir, 
-                    const unsigned int dt, const unsigned int traj)
-{
-  std::string              fileStem = "", filename, dataSet;
-  std::vector<std::string> terms = strToVec<std::string>(result.contraction.terms);
 
-  for (unsigned int i = 0; i < terms.size() - 1; i++)
-  {
-    if ( i != 0 ) fileStem += "_";
-    fileStem += terms[i] + "_" + std::to_string(result.times[i]);
-  }
-  filename = dir + "/" + RESULT_FILE_NAME(fileStem, traj);
-  std::cout << "Saving correlator to '" << filename << "'" << std::endl;
-  makeFileDir(dir);
-  ResultWriter writer(filename);
-  dataSet = fileStem + "_" + terms.back();
-  /*
-  if (!result.contraction.translationAverage)
-  {
-    dataSet += "_dt_" + std::to_string(dt);
-  }
-  */
-  write(writer, dataSet, result);
-}
-#endif
 std::set<unsigned int> parseTimeRange(const std::string str, const unsigned int nt)
 {
     std::regex               rex("([0-9]+)|(([0-9]+)\\.\\.([0-9]+))");
@@ -380,17 +350,6 @@ int main(int argc, char* argv[])
       {
 	times.push_back(parseTimeRange(s, par.global.nt));
       }
-#if 0
-      for (auto &m: par.a2aMatrix)
-      {
-	if (std::find(result.a2aMatrix.begin(), result.a2aMatrix.end(), m) == result.a2aMatrix.end())
-	{
-	  result.a2aMatrix.push_back(m);
-	  tokenReplace(result.a2aMatrix.back().file, "traj", traj);
-	}
-      }
-      result.contraction = p;
-#endif
       result.correlator.resize(par.global.nt, 0.);
 
       translations = parseTimeRange(p.translations, par.global.nt);
