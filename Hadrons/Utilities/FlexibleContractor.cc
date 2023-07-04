@@ -382,17 +382,17 @@ int main(int argc, char* argv[])
 		<< Bytes(bytes, tAr.getDTimer("Transpose caching")) << std::endl;
 
       std::string              fileStem = "", filename, dataSet;
-      std::vector<FlexibleContractor::TermsPar> terms = result.contraction.terms;
-      for (unsigned int i = 0; i < terms.size() ; i++)
+      std::vector<FlexibleContractor::TermsPar> termsv = result.contraction.terms;
+      for (unsigned int i = 0; i < termsv.size() ; i++)
       {
-	fileStem += terms[i].term + "_";
-	if ( terms[i].tdps ) {
+	fileStem += termsv[i].term + "_";
+	if ( termsv[i].tdps ) {
 	  fileStem += "x";
 	} else {
 	  fileStem += "y";
 	}
 	fileStem += std::to_string(result.times[i]);
-	if ( i < terms.size() - 1 ) fileStem += "_";
+	if ( i < termsv.size() - 1 ) fileStem += "_";
       }
       const std::string dir = par.global.output;
       makeFileDir(dir);
