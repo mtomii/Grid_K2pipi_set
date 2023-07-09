@@ -176,6 +176,11 @@ void TLoadBinnedA2AVecs<FImpl>::execute(void)
     std::vector<Lattice<SiteSpinorSet> >
       bvec(Nb,envGetGrid(Lattice<SiteSpinorSet>));
     readpeek(vec,bvec);
+  } else if ( bsize == 133 ) {
+    typedef iVector<iVector<iVector<vector_type, Nc>, Ns>, 133 > SiteSpinorSet;
+    std::vector<Lattice<SiteSpinorSet> >
+      bvec(Nb,envGetGrid(Lattice<SiteSpinorSet>));
+    readpeek(vec,bvec);
   } else if ( bsize == 173 ) {
     typedef iVector<iVector<iVector<vector_type, Nc>, Ns>, 173 > SiteSpinorSet;
     std::vector<Lattice<SiteSpinorSet> >
