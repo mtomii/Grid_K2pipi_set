@@ -381,10 +381,6 @@ int main(int argc, char* argv[])
 	  std::cout << "* Step " << i*translations.size() + dti + 1
 		    << "/" << timeSeq.size()*translations.size()
 		    << " -- positions= " << t << ", dt= " << dt << std::endl;
-	  if (terms.size() > 2)
-	  {
-	    std::cout << std::setw(8) << "products";
-	  }
 	  flops  = 0.;
 	  bytes  = 0.;
 	  fusec  = tAr.getDTimer("A*B algebra prec");
@@ -394,6 +390,7 @@ int main(int argc, char* argv[])
 	  prod0 = a2aMat.at(terms[0].term)[TIME_MOD(t[0] + dt)];
 	  tAr.stopTimer("Disk vector overhead");
 	  unsigned int nlast = terms.size()-1;
+	  tAr.startTimer("AAA");
 	  for (unsigned int j = 1; j < terms.size(); ++j)
 	  {
 	    if ( terms[j].tdps ) break;
@@ -411,12 +408,17 @@ int main(int argc, char* argv[])
 	    tAr.stopTimer("A*B total prec");
 	    bytes += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
 	  }
+	  tAr.stopTimer("AAA");
+	  tAr.startTimer("BBB");
 	  if (terms.size() - nlast > 1 )
 	  {
-	    std::cout << Sec(tAr.getDTimer("A*B total prec") - busec) << " "
+	    std::cout << std::setw(8) << "t-independent products"
+		      << Sec(tAr.getDTimer("A*B total prec") - busec) << " "
 		      << Flops(flops, tAr.getDTimer("A*B algebra prec") - fusec) << " "
 		      << Bytes(bytes, tAr.getDTimer("A*B total prec") - busec) << std::endl;
 	  }
+	  tAr.stopTimer("BBB");
+	  tAr.startTimer("CCC");
 	  std::cout << std::setw(8) << "traces";
 	  flops  = 0.;
 	  bytes  = 0.;
@@ -426,9 +428,14 @@ int main(int argc, char* argv[])
 	  bytesp  = 0.;
 	  fusecp  = tAr.getDTimer("A*B algebra rest");
 	  busecp  = tAr.getDTimer("A*B total rest");
+	  tAr.stopTimer("CCC");
+	  tAr.startTimer("DDD");
 	  for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
 	  {
+	    tAr.startTimer("DDD1");
 	    prod = prod0;
+	    tAr.stopTimer("DDD1");
+	    tAr.startTimer("DDD2");
 	    for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
 	      tAr.startTimer("Disk vector overhead");
 	      unsigned int tidx = TIME_MOD(t[j]+dt);
@@ -445,21 +452,27 @@ int main(int argc, char* argv[])
 	      tAr.stopTimer("A*B total rest");
 	      bytesp += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
 	    }
+	    tAr.stopTimer("DDD2");
 	    tAr.startTimer("tr(A*B)");
 	    unsigned int tidx = TIME_MOD(t[terms.size()-1]+dt);
 	    if ( terms[terms.size()-1].tdps )
 	      tidx = TIME_MOD(t[terms.size()-1] + tLast);
 	    A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tidx]);
 	    tAr.stopTimer("tr(A*B)");
+	    tAr.startTimer("DDD3");
 	    flops += A2AContraction::accTrMulFlops(prod, lastTerm[TIME_MOD(tLast)]);
 	    bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
+	    tAr.stopTimer("DDD3");
 	  }
+	  tAr.stopTimer("DDD");
+	  tAr.startTimer("EEE");
 	  if ( nlast > 1 )
 	  {
 	    std::cout << Sec(tAr.getDTimer("A*B total rest") - busecp) << " "
 		      << Flops(flopsp, tAr.getDTimer("A*B algebra rest") - fusecp) << " "
 		      << Bytes(bytesp, tAr.getDTimer("A*B total rest") - busecp) << std::endl;
 	  }
+	  tAr.stopTimer("EEE");
 	  tAr.stopTimer("Linear algebra");
 	  std::cout << Sec(tAr.getDTimer("tr(A*B)") - busec) << " "
 		    << Flops(flops, tAr.getDTimer("tr(A*B)") - fusec) << " " 
