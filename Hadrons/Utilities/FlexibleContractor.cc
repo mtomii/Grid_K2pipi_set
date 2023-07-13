@@ -423,11 +423,14 @@ int main(int argc, char* argv[])
 	  bytesp  = 0.;
 	  fusecp  = tAr.getDTimer("A*B algebra rest");
 	  busecp  = tAr.getDTimer("A*B total rest");
-	  tAr.startTimer("DDD");
+	  tAr.startTimer("Copying A2AMatrix");
 	  if ( nlast > 1 ) prod0 = prod;
+	  tAr.stopTimer("Copying A2AMatrix");
 	  for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
 	  {
+	    tAr.startTimer("Copying A2AMatrix");
 	    if ( nlast > 1 ) prod = prod0;
+	    tAr.stopTimer("Copying A2AMatrix");
 	    for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
 	      tAr.startTimer("Disk vector overhead");
 	      unsigned int tidx = TIME_MOD(t[j]+dt);
@@ -453,7 +456,6 @@ int main(int argc, char* argv[])
 	    flops += A2AContraction::accTrMulFlops(prod, lastTerm[TIME_MOD(tLast)]);
 	    bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
 	  }
-	  tAr.stopTimer("DDD");
 	  if ( nlast > 1 )
 	  {
 	    std::cout << Sec(tAr.getDTimer("A*B total rest") - busecp) << " "
