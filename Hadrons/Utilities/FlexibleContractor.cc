@@ -423,44 +423,54 @@ int main(int argc, char* argv[])
 	  bytesp  = 0.;
 	  fusecp  = tAr.getDTimer("A*B algebra rest");
 	  busecp  = tAr.getDTimer("A*B total rest");
-	  tAr.startTimer("Copying A2AMatrix");
-	  if ( nlast > 1 ) prod0 = prod;
-	  tAr.stopTimer("Copying A2AMatrix");
-	  for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
-	  {
+	  if ( nlast > 1 ) {
 	    tAr.startTimer("Copying A2AMatrix");
-	    if ( nlast > 1 ) prod = prod0;
+	    prod0 = prod;
 	    tAr.stopTimer("Copying A2AMatrix");
-	    for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
-	      tAr.startTimer("Disk vector overhead");
-	      unsigned int tidx = TIME_MOD(t[j]+dt);
-	      if ( terms[j].tdps ) tidx = TIME_MOD(t[j] + tLast);
-	      const A2AMatrix<ComplexD> &ref = a2aMat.at(terms[j].term)[tidx];
-	      tAr.stopTimer("Disk vector overhead");
+	    for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
+	    {
+	      tAr.startTimer("Copying A2AMatrix");
+	      prod = prod0;
+	      tAr.stopTimer("Copying A2AMatrix");
+	      for (unsigned int j = terms.size() - nlast ; j < terms.size() - 1 ; ++j) {
+		tAr.startTimer("Disk vector overhead");
+		unsigned int tidx = TIME_MOD(t[j]+dt);
+		if ( terms[j].tdps ) tidx = TIME_MOD(t[j] + tLast);
+		const A2AMatrix<ComplexD> &ref = a2aMat.at(terms[j].term)[tidx];
+		tAr.stopTimer("Disk vector overhead");
 
-	      tAr.startTimer("A*B total rest");
-	      tAr.startTimer("A*B algebra rest");
-	      A2AContraction::mul(tmp, prod, ref);
-	      tAr.stopTimer("A*B algebra rest");
-	      flopsp += A2AContraction::mulFlops(prod, ref);
-	      prod   = tmp;
-	      tAr.stopTimer("A*B total rest");
-	      bytesp += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
+		tAr.startTimer("A*B total rest");
+		tAr.startTimer("A*B algebra rest");
+		A2AContraction::mul(tmp, prod, ref);
+		tAr.stopTimer("A*B algebra rest");
+		flopsp += A2AContraction::mulFlops(prod, ref);
+		prod   = tmp;
+		tAr.stopTimer("A*B total rest");
+		bytesp += 3.*tmp.rows()*tmp.cols()*sizeof(ComplexD);
+	      }
+	      tAr.startTimer("tr(A*B)");
+	      unsigned int tidx = TIME_MOD(t[terms.size()-1]+dt);
+	      if ( terms[terms.size()-1].tdps )
+		tidx = TIME_MOD(t[terms.size()-1] + tLast);
+	      A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tidx]);
+	      tAr.stopTimer("tr(A*B)");
+	      flops += A2AContraction::accTrMulFlops(prod, lastTerm[tidx]);
+	      bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
 	    }
-	    tAr.startTimer("tr(A*B)");
-	    unsigned int tidx = TIME_MOD(t[terms.size()-1]+dt);
-	    if ( terms[terms.size()-1].tdps )
-	      tidx = TIME_MOD(t[terms.size()-1] + tLast);
-	    A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tidx]);
-	    tAr.stopTimer("tr(A*B)");
-	    flops += A2AContraction::accTrMulFlops(prod, lastTerm[TIME_MOD(tLast)]);
-	    bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
-	  }
-	  if ( nlast > 1 )
-	  {
 	    std::cout << Sec(tAr.getDTimer("A*B total rest") - busecp) << " "
 		      << Flops(flopsp, tAr.getDTimer("A*B algebra rest") - fusecp) << " "
 		      << Bytes(bytesp, tAr.getDTimer("A*B total rest") - busecp) << std::endl;
+	  } else {
+	    for (unsigned int tLast = p.min_t+dt; tLast <= p.max_t+dt; ++tLast)
+	    {
+	      tAr.startTimer("tr(A*B)");
+	      unsigned int tidx = TIME_MOD(t[terms.size()-1]+tLast);
+	      assert( terms[terms.size()-1].tdps );
+	      A2AContraction::accTrMul(result.correlator[TIME_MOD(tLast - dt)], prod, lastTerm[tidx]);
+	      tAr.stopTimer("tr(A*B)");
+	      flops += A2AContraction::accTrMulFlops(prod, lastTerm[tidx]);
+	      bytes += 2.*prod.rows()*prod.cols()*sizeof(ComplexD);
+	    }
 	  }
 	  tAr.stopTimer("Linear algebra");
 	  std::cout << Sec(tAr.getDTimer("tr(A*B)") - busec) << " "
