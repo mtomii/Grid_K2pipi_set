@@ -93,9 +93,11 @@ const Coordinate &GridDefaultLatt(void)     {return Grid_default_latt;};
 const Coordinate &GridDefaultMpi(void)      {return Grid_default_mpi;};
 const Coordinate GridDefaultSimd(int dims,int nsimd)
 {
-  Coordinate layout(dims);
+  //Coordinate layout(dims);
+  Coordinate layout(dims,1);
   int nn=nsimd;
-  for(int d=dims-1;d>=0;d--){
+  //for(int d=dims-1;d>=0;d--){
+  for(int d=dims-2;d>=0;d--){
     if ( nn>=2) {
       layout[d]=2;
       nn/=2;
