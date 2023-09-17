@@ -136,10 +136,6 @@ void TA2AVxPi<FImpl>::execute(void)
 
   assert( grid->_ldimensions[orthogdim] > stepsize );
 
-  int N_i = (*meson_f)[0].rows();
-  assert ( N_i == leftV.size() );
-  int N_j = (*meson_f)[0].cols();
-
   //std::vector<A2AMatrix<Scalar_s> > meson;
   std::vector<A2AMatrix<Complex> > meson;
   std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
@@ -159,6 +155,10 @@ void TA2AVxPi<FImpl>::execute(void)
       printf("##  t_op = %d, t_mes = %d\n",t,tmes);
     meson.push_back(meson_f[tmes]);
   }
+
+  int N_i = meson[0].rows();
+  assert ( N_i == leftV.size() );
+  int N_j = meson[0].cols();
 
   int rd= grid->_rdimensions[orthogdim];//2
   int e1= grid->_slice_nblock[orthogdim];//1
