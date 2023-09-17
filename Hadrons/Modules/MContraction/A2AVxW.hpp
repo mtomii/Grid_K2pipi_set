@@ -125,48 +125,25 @@ void TA2AVxW<FImpl>::execute(void)
   auto &rightW = envGet(std::vector<SpinColourVector_v>, par().right);
   auto &leftV  = envGet(std::vector<SpinColourVector_v>, par().left);
 
-  GridBase *grid = rightW[0].Grid();
-  int nt         = env().getDim().back();
-
   int orthogdim = 3;
-
-  assert( grid->_ldimensions[orthogdim] > stepsize );
-
-  //std::vector<A2AMatrix<Scalar_s> > meson;
-  std::vector<A2AMatrix<Complex> > meson;
-  std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
 
   int N_i = par().Nmode;
 
-  int rd= grid->_rdimensions[orthogdim];//2
-  int e1= grid->_slice_nblock[orthogdim];//1
-  int e2= grid->_slice_block [orthogdim];//64 must be 4^3
-  int stride=grid->_slice_stride[orthogdim];//128
-  int MFrvol = grid->_rdimensions[0]
-    *          grid->_rdimensions[1]
-    *          grid->_rdimensions[2]
-    *          grid->_rdimensions[3]
-    /          grid->_rdimensions[orthogdim]
-    *          stepsize;
   assert ( leftV.size() == rightW.size() );
+  int MFrvol = leftV.size() / N_i;
   int N_i = leftV.size() / MFrvol;
 
-  vec.assign(MFrvol,Zero());
-  std::cout << "Allocated " << vec.size() << " spin-color matrices for V x W" << std::endl;
-  thread_for(i,N_i,{
-    for(int it=0;it<stepsize;it++){
-      std::vector<SpinColourVector_v> vec(e1*e2,Zero());
-      for(int n=0;n<e1;n++){
-      for(int b=0;b<e2;b++){
-	int sv = i+N_i*(it+e1*(n*e2+b));
-	int sm = it+e1*(n*e2+b);
-	for(int s1=0;s1<Ns;s1++)
-	for(int s2=0;s2<Ns;s2++)
-	for(int c1=0;c1<Nc;c1++)
-	for(int c2=0;c2<Nc;c2++){
-	    mat[sm]()(s1,s2)(c1,c2) += leftV[sv]()(s1)(c1) * rightW[sv]()(s2)(c2);
-	}
-      }}
+  mat.assign(MFrvol,Zero());
+  std::cout << "Allocated " << mat.size() << " spin-color matrices for V x W" << std::endl;
+  thread_for(ix,MFrvol,{
+    for(int i=0;i<N_i;i++){
+      int sv = i+N_i*ix;
+      for(int s1=0;s1<Ns;s1++)
+      for(int s2=0;s2<Ns;s2++)
+      for(int c1=0;c1<Nc;c1++)
+      for(int c2=0;c2<Nc;c2++){
+	mat[ix]()(s1,s2)(c1,c2) += leftV[sv]()(s1)(c1) * rightW[sv]()(s2)(c2);
+      }
     }
   });
 }
