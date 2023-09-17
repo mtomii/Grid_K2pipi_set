@@ -107,9 +107,8 @@ void TA2APixW<FImpl>::setup(void)
 {
   typedef typename FImpl::SiteSpinor vobj;
   typedef typename vobj::vector_type vector_type;
-  typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
-  //envCreateLat(PropagatorField, getName());
-  envCreate(std::vector<SpinColourMatrix_v>, getName(), 1, 0, Zero());
+  typedef iSpinColourVector<vector_type> SpinColourVector_v;
+  envCreate(std::vector<SpinColourVector_v>, getName(), 1, 0, Zero());
 }
 
 // execution ///////////////////////////////////////////////////////////////////
@@ -173,7 +172,8 @@ void TA2APixW<FImpl>::execute(void)
   vec.assign(MFrvol,Zero());
   std::cout << "Allocated " << vec.size() << " spin-color vectors for V x Pi" << std::endl;
   thread_for(i,N_i,{
-    for(int r=0;r<rd;r++){
+    for(int it=0;it<stepsize;it++){
+      int r = tmin_rep + it;
       int so=r*grid->_ostride[orthogdim];
       std::vector<SpinColourVector_v> vec(e1*e2,Zero());
       for(int j=0;j<N_j;++j){
@@ -181,11 +181,11 @@ void TA2APixW<FImpl>::execute(void)
 	for(int n=0;n<e1;n++){
 	for(int b=0;b<e2;b++){
 	  int ss = so+n*stride+b;
-	  int sv = i+N_i*(n*e2+b);
+	  int sv = i+N_i*(it+e1*(n*e2+b));
 	  auto right = conjugate(rhs_w[ss]);
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
-	    vec[sv]()(s1)(c1) += meson[r](i,j) * right()(s1)(c1);
+	    vec[sv]()(s1)(c1) += meson[it](i,j) * right()(s1)(c1);
 	  }
 	}}
       }
