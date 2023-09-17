@@ -9,6 +9,7 @@
 #include <Hadrons/Modules/MContraction/A2ALoop.hpp>
 #include <Hadrons/Modules/MContraction/A2AMonsterLoop.hpp>
 #include <Hadrons/Modules/MContraction/A2AVxPi.hpp>
+#include <Hadrons/Modules/MContraction/A2APixW.hpp>
 #include <Hadrons/Modules/MContraction/A2ACoarseGrid.hpp>
 #include <Hadrons/Modules/MContraction/A2AMesonField.hpp>
 #include <Hadrons/Modules/MContraction/MultMesonField.hpp>

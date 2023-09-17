@@ -10,6 +10,7 @@ modules_cc =\
   Modules/MContraction/A2ALoop.cc \
   Modules/MContraction/A2AMonsterLoop.cc \
   Modules/MContraction/A2AVxPi.cc \
+  Modules/MContraction/A2APixW.cc \
   Modules/MContraction/A2ACoarseGrid.cc \
   Modules/MContraction/A2AMesonField.cc \
   Modules/MContraction/MultMesonField.cc \
@@ -103,6 +104,7 @@ modules_hpp =\
   Modules/MContraction/A2ALoop.hpp \
   Modules/MContraction/A2AMonsterLoop.hpp \
   Modules/MContraction/A2AVxPi.hpp \
+  Modules/MContraction/A2APixW.hpp \
   Modules/MContraction/A2ACoarseGrid.hpp \
   Modules/MContraction/A2AMesonField.hpp \
   Modules/MContraction/MultMesonField.hpp \
