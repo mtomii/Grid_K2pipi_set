@@ -131,7 +131,6 @@ void TA2AVxW<FImpl>::execute(void)
 
   assert ( leftV.size() == rightW.size() );
   int MFrvol = leftV.size() / N_i;
-  int N_i = leftV.size() / MFrvol;
 
   mat.assign(MFrvol,Zero());
   std::cout << "Allocated " << mat.size() << " spin-color matrices for V x W" << std::endl;
