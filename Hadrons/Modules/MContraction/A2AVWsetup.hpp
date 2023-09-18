@@ -123,17 +123,16 @@ void TA2AVWsetup<FImpl>::execute(void)
 
   GridBase *grid = VW[0].Grid();
   int nt         = env().getDim().back();
-  int stepsize = par().delt_max - par().delt_min;
+  int stepsize = par().delt_max - par().delt_min + 1;
   int v_os  = par().t_mes_base + par().delt_min;
 
   int orthogdim = 3;
 
-  assert( grid->_ldimensions[orthogdim] > stepsize );
+  assert( grid->_ldimensions[orthogdim] >= stepsize );
 
   std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
 
   int tmin_rep = ( v_os  + nt ) % grid->_ldimensions[orthogdim];
-  int tmax_rep = tmin_rep + stepsize;
 
   int N_i = VW.size();
 

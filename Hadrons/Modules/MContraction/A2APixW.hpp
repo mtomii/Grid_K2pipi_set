@@ -126,19 +126,19 @@ void TA2APixW<FImpl>::execute(void)
 
   GridBase *grid = rightW[0].Grid();
   int nt         = env().getDim().back();
-  int stepsize = par().delt_max - par().delt_min;
+  int stepsize = par().delt_max - par().delt_min + 1;
   int v_os  = par().t_mes_base + par().delt_min;
 
   int orthogdim = 3;
 
-  assert( grid->_ldimensions[orthogdim] > stepsize );
+  assert( grid->_ldimensions[orthogdim] >= stepsize );
 
   //std::vector<A2AMatrix<Scalar_s> > meson;
   std::vector<A2AMatrix<Complex> > meson;
   std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
 
   int tmin_rep = ( v_os  + nt ) % grid->_ldimensions[orthogdim];
-  int tmax_rep = tmin_rep + stepsize;
+  int tmax_rep = tmin_rep + stepsize - 1;
   for( int tl = tmin_rep ; tl <= tmax_rep ; ++tl ) {
     int t = ( tl + grid->_lstart[orthogdim] ) % grid->_ldimensions[orthogdim];
     int tmes;
