@@ -149,7 +149,7 @@ void TA2APixW<FImpl>::execute(void)
       if ( tmes_t >= par().delt_min && tmes_t <= par().delt_max ) break;
     }
     if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] == 0 )
-      printf("##  t_op = %d, t_mes = %d\n",t,tmes);
+      printf("##  t_op = %d, t_mes = %d, ldimension = \n",t,tmes,grid->_ldimensions[orthogdim]);
     meson.push_back(meson_f[tmes]);
   }
 
