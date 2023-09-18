@@ -45,8 +45,6 @@ class A2AVxPiPar: Serializable
 {
 public:
     GRID_SERIALIZABLE_CLASS_MEMBERS(A2AVxPiPar,
-                                    int, cacheBlock,
-                                    int, block,
                                     std::string, left,
 				    std::string, mes,
 				    int, t_mes_base,

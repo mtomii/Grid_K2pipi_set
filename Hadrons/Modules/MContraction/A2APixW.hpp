@@ -45,8 +45,6 @@ class A2APixWPar: Serializable
 {
 public:
     GRID_SERIALIZABLE_CLASS_MEMBERS(A2APixWPar,
-                                    int, cacheBlock,
-                                    int, block,
                                     std::string, right,
 				    std::string, mes,
 				    int, t_mes_base,

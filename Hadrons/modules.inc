@@ -9,6 +9,7 @@ modules_cc =\
   Modules/MContraction/A2AFourQuarkContraction.cc \
   Modules/MContraction/A2ALoop.cc \
   Modules/MContraction/A2AMonsterLoop.cc \
+  Modules/MContraction/A2AVWsetup.cc \
   Modules/MContraction/A2AVxPi.cc \
   Modules/MContraction/A2APixW.cc \
   Modules/MContraction/A2AVxW.cc \
@@ -104,6 +105,7 @@ modules_hpp =\
   Modules/MContraction/A2AFourQuarkContraction.hpp \
   Modules/MContraction/A2ALoop.hpp \
   Modules/MContraction/A2AMonsterLoop.hpp \
+  Modules/MContraction/A2AVWsetup.hpp \
   Modules/MContraction/A2AVxPi.hpp \
   Modules/MContraction/A2APixW.hpp \
   Modules/MContraction/A2AVxW.hpp \
