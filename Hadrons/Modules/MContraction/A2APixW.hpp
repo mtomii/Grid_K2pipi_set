@@ -140,7 +140,7 @@ void TA2APixW<FImpl>::execute(void)
   int tmin_rep = ( v_os  + nt ) % grid->_ldimensions[orthogdim];
   int tmax_rep = tmin_rep + stepsize - 1;
   for( int tl = tmin_rep ; tl <= tmax_rep ; ++tl ) {
-    int t = tl + grid->_lstart[orthogdim];
+    int t = ( tl + grid->_lstart[orthogdim] ) % nt;
     int tmes;
     int tmes_t;
     for ( int t0 = 0 ; t0 < nt ; t0 += grid->_ldimensions[orthogdim] ) {
