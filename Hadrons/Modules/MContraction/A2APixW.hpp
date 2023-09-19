@@ -184,7 +184,7 @@ void TA2APixW<FImpl>::execute(void)
 	  auto right = conjugate(rhs_w[ss]);
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
-	    vec[sv]()(s1)(c1) += 0.1;//meson[it](i,j) * right()(s1)(c1);
+	    vec[sv]()(s1)(c1) += meson[it](i,j) * right()(s1)(c1);
 	  }
 	}}
       }
