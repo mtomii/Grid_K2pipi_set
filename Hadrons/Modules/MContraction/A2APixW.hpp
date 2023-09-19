@@ -192,7 +192,7 @@ void TA2APixW<FImpl>::execute(void)
 	}}
       }
     }
-  });
+  }//});
 }
 
 END_MODULE_NAMESPACE
