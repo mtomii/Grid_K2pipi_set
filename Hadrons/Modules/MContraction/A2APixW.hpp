@@ -146,7 +146,7 @@ void TA2APixW<FImpl>::execute(void)
     int tmes_t;
     for ( int t0 = 0 ; t0 < nt ; t0 += grid->_ldimensions[orthogdim] ) {
       tmes = ( t0 + par().t_mes_base ) % nt;
-      tmes_t = ( tmes - t + nt ) % nt;
+      tmes_t = tmes - t;
       if ( tmes_t >= par().delt_min && tmes_t <= par().delt_max ) break;
     }
     if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] == 0 )
