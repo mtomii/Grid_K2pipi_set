@@ -143,14 +143,14 @@ void TA2APixW<FImpl>::execute(void)
     //int t = ( tl + grid->_lstart[orthogdim] ) % nt;
     int t = tl % grid->_ldimensions[orthogdim] + grid->_lstart[orthogdim];
     int tmes;
-    int tmes_t;
+    int t_tmes;
     for ( int t0 = 0 ; t0 < nt ; t0 += grid->_ldimensions[orthogdim] ) {
       tmes = ( t0 + par().t_mes_base ) % nt;
-      tmes_t = tmes - t;
-      if ( tmes_t >= par().delt_min && tmes_t <= par().delt_max ) break;
+      t_tmes = t - tmes;
+      if ( t_tmes >= par().delt_min && t_tmes <= par().delt_max ) break;
     }
     if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] == 0 )
-      printf("##  t_op = %d, t_mes = %d, ldimension = %d\n",t,tmes,grid->_ldimensions[orthogdim]);
+      printf("##  t_op = %d, t_mes = %d, lstart = %d\n",t,tmes,grid->_lstart[orthogdim]);
     meson.push_back(meson_f[tmes]);
   }
 
