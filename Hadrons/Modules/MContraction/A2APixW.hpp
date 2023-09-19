@@ -179,7 +179,8 @@ void TA2APixW<FImpl>::execute(void)
 	for(int n=0;n<e1;n++){
 	for(int b=0;b<e2;b++){
 	  int ss = so+n*stride+b;
-	  int sv = i+stepsize*(it+e1*(b+n*e2));
+	  //int sv = i+stepsize*(it+e1*(b+n*e2));
+	  int sv = b+e2*(n+e1*(it+stepsize*i));
 	  auto right = conjugate(rhs_w[ss]);
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
