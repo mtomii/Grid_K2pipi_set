@@ -169,6 +169,8 @@ void TA2APixW<FImpl>::execute(void)
     *          stepsize * N_i;
   vec.assign(MFrvol,Zero());
   std::cout << "Allocated " << vec.size() << " spin-color vectors for V x Pi" << std::endl;
+  int volReal = e1 * e2 * stepsize * N_i;
+  std::cout << "Real volume: " << e1 << " x " << e2 << " x " << stepsize << " x " << N_i << " = " << volReal << std::endl;
   thread_for(i,N_i,{
     for(int it=0;it<stepsize;it++){
       int r = tmin_rep + it;
