@@ -140,7 +140,6 @@ void TA2APixW<FImpl>::execute(void)
   int tmin_rep = ( v_os  + nt ) % grid->_ldimensions[orthogdim];
   int tmax_rep = tmin_rep + stepsize - 1;
   for( int tl = tmin_rep ; tl <= tmax_rep ; ++tl ) {
-    //int t = ( tl + grid->_lstart[orthogdim] ) % nt;
     int t = tl % grid->_ldimensions[orthogdim] + grid->_lstart[orthogdim];
     int tmes;
     int t_tmes;
@@ -181,11 +180,13 @@ void TA2APixW<FImpl>::execute(void)
 	for(int b=0;b<e2;b++){
 	  int ss = so+n*stride+b;
 	  int sv = i+N_i*(it+e1*(n*e2+b));
+	  /*
 	  auto right = conjugate(rhs_w[ss]);
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
 	    vec[sv]()(s1)(c1) += meson[it](i,j) * right()(s1)(c1);
 	  }
+	  */
 	}}
       }
     }
