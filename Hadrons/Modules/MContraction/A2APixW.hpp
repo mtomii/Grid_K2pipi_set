@@ -172,7 +172,7 @@ void TA2APixW<FImpl>::execute(void)
   int volReal = e1 * e2 * stepsize * N_i;
   std::cout << "Real volume: " << e1 << " x " << e2 << " x " << stepsize << " x " << N_i << " = " << volReal << std::endl;
   printf("#### size mf %d x %d x %d\n",stepsize,N_i,N_j);
-  std::vector<SpinColourVector_v> vec0(e1*e2*stepsize*N_i,Zero());
+  //std::vector<SpinColourVector_v> vec0(e1*e2*stepsize*N_i,Zero());
   thread_for(i,N_i,{
     for(int it=0;it<stepsize;it++){
       int r = ( tmin_rep + it ) % grid->_ldimensions[orthogdim];
@@ -188,8 +188,8 @@ void TA2APixW<FImpl>::execute(void)
 	  //auto right = conjugate(rhs_w[0]);
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
-	    //vec0[sv]()(s1)(c1) += right()(s1)(c1) * meson[it](i,j);
-	    vec0[sv]()(s1)(c1) += right()(s1)(c1);
+	    vec[sv]()(s1)(c1) += right()(s1)(c1) * meson[it](i,j);
+	    //vec0[sv]()(s1)(c1) += right()(s1)(c1);
 	    //vec0[sv]()(s1)(c1) += right()(3)(1);
 	    //vec0[sv]()(s1)(c1) += meson[it](i,j);
 	    //vec0[sv]()(s1)(c1) = Zero();
