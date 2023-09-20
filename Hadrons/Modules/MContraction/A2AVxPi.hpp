@@ -141,13 +141,13 @@ void TA2AVxPi<FImpl>::execute(void)
   int tmin_rep = ( v_os  + nt ) % grid->_ldimensions[orthogdim];
   int tmax_rep = tmin_rep + stepsize - 1;
   for( int tl = tmin_rep ; tl <= tmax_rep ; ++tl ) {
-    int t = ( tl + grid->_lstart[orthogdim] ) % grid->_ldimensions[orthogdim];
+    int t = tl % grid->_ldimensions[orthogdim] + grid->_lstart[orthogdim];
     int tmes;
-    int tmes_t;
+    int t_tmes;
     for ( int t0 = 0 ; t0 < nt ; t0 += grid->_ldimensions[orthogdim] ) {
-      tmes = t0 + par().t_mes_base;
-      tmes_t = tmes - t;
-      if ( tmes_t >= par().delt_min && tmes_t <= par().delt_max ) break;
+      tmes = ( t0 + par().t_mes_base ) % nt;
+      t_tmes = t - tmes;
+      if ( t_tmes >= par().delt_min && t_tmes <= par().delt_max ) break;
     }
     if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] == 0 )
       printf("##  t_op = %d, t_mes = %d\n",t,tmes);
@@ -172,7 +172,7 @@ void TA2AVxPi<FImpl>::execute(void)
   std::cout << "Allocated " << vec.size() << " spin-color vectors for V x Pi" << std::endl;
   thread_for(j,N_j,{
     for(int it=0;it<stepsize;it++){
-      int r = tmin_rep + it;
+      int r = ( tmin_rep + it ) % grid->_ldimensions[orthogdim];
       int so=r*grid->_ostride[orthogdim];
       std::vector<SpinColourVector_v> vec(e1*e2,Zero());
       for(int i=0;i<N_i;++i){
@@ -180,7 +180,7 @@ void TA2AVxPi<FImpl>::execute(void)
 	for(int n=0;n<e1;n++){
 	for(int b=0;b<e2;b++){
 	  int ss = so+n*stride+b;
-	  int sv = j+N_j*(it+e1*(n*e2+b));
+	  int sv = b+e2*(n+e1*(it+stepsize*i));
 	  auto left = lhs_v[ss];
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
