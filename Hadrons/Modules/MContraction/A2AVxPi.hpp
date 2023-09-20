@@ -174,7 +174,6 @@ void TA2AVxPi<FImpl>::execute(void)
     for(int it=0;it<stepsize;it++){
       int r = ( tmin_rep + it ) % grid->_ldimensions[orthogdim];
       int so=r*grid->_ostride[orthogdim];
-      std::vector<SpinColourVector_v> vec(e1*e2,Zero());
       for(int i=0;i<N_i;++i){
 	auto lhs_v = leftV[i].View();
 	for(int n=0;n<e1;n++){

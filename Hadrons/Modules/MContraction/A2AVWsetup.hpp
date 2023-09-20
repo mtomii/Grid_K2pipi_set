@@ -153,7 +153,6 @@ void TA2AVWsetup<FImpl>::execute(void)
     for(int it=0;it<stepsize;it++){
       int r = ( tmin_rep + it ) % grid->_ldimensions[orthogdim];
       int so=r*grid->_ostride[orthogdim];
-      std::vector<SpinColourVector_v> vec(e1*e2,Zero());
       for(int n=0;n<e1;n++){
       for(int b=0;b<e2;b++){
 	int ss = so+n*stride+b;
