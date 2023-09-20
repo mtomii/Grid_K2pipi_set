@@ -188,8 +188,8 @@ void TA2APixW<FImpl>::execute(void)
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
 	    //vec0[sv]()(s1)(c1) += right()(s1)(c1) * meson[it](i,j);
-	    vec0[sv]()(s1)(c1) = right()(s1)(c1);
-	    //vec0[sv]()(s1)(c1) += Zero();
+	    vec0[sv]()(s1)(c1) =+ right()(s1)(c1);
+	    //vec0[sv]()(s1)(c1) = Zero();
 	  }
 	}}
       }
