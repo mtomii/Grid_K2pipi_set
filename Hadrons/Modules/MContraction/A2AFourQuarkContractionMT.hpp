@@ -45,7 +45,10 @@ class A2AFourQuarkContractionMTPar: Serializable
 {
 public:
     GRID_SERIALIZABLE_CLASS_MEMBERS(A2AFourQuarkContractionMTPar,
-				    int, nt,
+				    int, ntmat1,
+				    int, ntmat2,
+				    int, indent1,
+				    int, indent2,
 				    std::string, sctypes,
                                     std::string, output,
                                     std::string, mat1,
@@ -183,12 +186,18 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
 
-  auto &mat1 = envGet(std::vector<SpinColourMatrix_v>, par().mat1);
-  auto &mat2 = envGet(std::vector<SpinColourMatrix_v>, par().mat2);
-  auto &nt   = par().nt;
+  auto &mat1    = envGet(std::vector<SpinColourMatrix_v>, par().mat1);
+  auto &mat2    = envGet(std::vector<SpinColourMatrix_v>, par().mat2);
+  auto &ntmat1  = par().ntmat1;
+  auto &ntmat2  = par().ntmat2;
+  auto &indent1 = par().indent1;
+  auto &indent2 = par().indent2;
 
-  int vol3d = mat1.size() / nt;
-  assert ( mat1.size() == mat2.size() );
+  int nt = ntmat2 - indent2;
+  if ( nt > ntmat1 - indent1 ) nt = ntmat1 - indent1;
+
+  int vol3d = mat1.size() / ntmat1;
+  assert ( vol3d == mat2.size() / ntmat2 );
 
   Complex C0(0.,0.);
   std::vector<Complex> corr0(nt,C0);
@@ -196,30 +205,25 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int num_corr = gamma1_.size() * types_.size();
   corr.assign(num_corr,corr0);
 
-  /*
-  thread_for(ix,vol3d{
-    for(int ig=0;ig<gamma1_.size();ig++){
-    for(int isc=0;isc<types_.size();isc++){
-      std::vector<Gamma::Algebra> gvec1 = gamma1_[ig];
-      std::vector<Gamma::Algebra> gvec2 = gamma2_[ig];
-      int type = types_[isc];
-      for(int igg=0;igg<gvec1.size();igg++) {
-      
-      }
-    }}
-  });
-  thread_for(ix,mat1.size(),{
-    for(int ix=0;ix<MFrvol;ix++){
-      int sv = ix+vol3d*it;
-      for(int s1=0;s1<Ns;s1++)
-      for(int s2=0;s2<Ns;s2++)
-      for(int c1=0;c1<Nc;c1++)
-      for(int c2=0;c2<Nc;c2++){
-	mat[ix]()(s1,s2)(c1,c2) += leftV[sv]()(s1)(c1) * rightW[sv]()(s2)(c2);
+  int thread_vol = nt * gamma1_.size() * types_.size();
+
+  thread_for(ittg,thread_vol{
+    int ig = ittg % gamma1_.size();
+    int itt  = int(ittg / gamma1_.size());
+    int isct = itt % types_.size();
+    int it   = int(itt / types_.size());
+    int it1 = it + indent1;
+    int it2 = it + indent2;
+    std::vector<Gamma::Algebra> gvec1 = gamma1_[ig];
+    std::vector<Gamma::Algebra> gvec2 = gamma2_[ig];
+    for(int ix3d=0;ix3d<vol3d;ix3d++){
+      int ix  = ix3d + vol3d*it;
+      for(int igg=0;igg<gvec1.size();igg++){
+	SpinColourMatrix_v WM1 = mat1[ix] * gvec1[igg];
+	SpinColourMatrix_v WM2 = mat2[ix] * gvec2[igg];
       }
     }
   });
-  */
 }
 
 END_MODULE_NAMESPACE
