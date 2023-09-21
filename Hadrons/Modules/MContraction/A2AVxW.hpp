@@ -127,6 +127,7 @@ void TA2AVxW<FImpl>::execute(void)
 
   int N_i = par().Nmode;
 
+  std::cout << "## Vsize: " << leftV.size() << ", Wsize: " << rightW.size() << std::endl;
   assert ( leftV.size() == rightW.size() );
   int MFrvol = leftV.size() / N_i;
 

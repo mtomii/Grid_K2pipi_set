@@ -133,7 +133,6 @@ void TA2APixW<FImpl>::execute(void)
 
   assert( grid->_ldimensions[orthogdim] >= stepsize );
 
-  //std::vector<A2AMatrix<Scalar_s> > meson;
   std::vector<A2AMatrix<Complex> > meson;
   std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
 
@@ -168,7 +167,7 @@ void TA2APixW<FImpl>::execute(void)
     /          grid->_rdimensions[orthogdim]
     *          stepsize * N_i;
   vec.assign(MFrvol,Zero());
-  std::cout << "Allocated " << vec.size() << " spin-color vectors for V x Pi" << std::endl;
+  std::cout << "Allocated " << vec.size() << " spin-color vectors for Pi x W" << std::endl;
   int volReal = e1 * e2 * stepsize * N_i;
   assert( volReal == MFrvol );
   thread_for(i,N_i,{

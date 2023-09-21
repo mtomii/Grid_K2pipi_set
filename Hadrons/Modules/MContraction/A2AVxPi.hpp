@@ -119,8 +119,6 @@ void TA2AVxPi<FImpl>::execute(void)
   typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
-  //typedef typename vobj::scalar_type scalar_type;
-  //auto &loop  = envGet(PropagatorField, getName());
   auto &vec   = envGet(std::vector<SpinColourVector_v>, getName());
   auto &leftV = envGet(std::vector<FermionField>, par().left);
   auto &meson_f = envGet(EigenDiskVector<Complex>, par().mes);
@@ -134,7 +132,6 @@ void TA2AVxPi<FImpl>::execute(void)
 
   assert( grid->_ldimensions[orthogdim] >= stepsize );
 
-  //std::vector<A2AMatrix<Scalar_s> > meson;
   std::vector<A2AMatrix<Complex> > meson;
   std::cout << "# t_mes_base: " << par().t_mes_base << std::endl;
 
