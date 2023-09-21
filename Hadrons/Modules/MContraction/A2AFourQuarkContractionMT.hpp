@@ -190,7 +190,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int vol3d = mat1.size() / nt;
   assert ( mat1.size() == mat2.size() );
 
-  std::vector<Complex> corr0(nt,0.,0.);
+  Complex C0(0.,0.);
+  std::vector<Complex> corr0(nt,C0);
   std::vector<std::vector<Complex> > corr(nt,corr0);
   int num_corr = gamma1_.size() * types_.size();
   corr.assign(num_corr,corr0);
