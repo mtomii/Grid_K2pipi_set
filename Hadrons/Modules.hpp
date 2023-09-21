@@ -6,6 +6,7 @@
 #include <Hadrons/Modules/MAction/ZMobiusDWF.hpp>
 #include <Hadrons/Modules/MContraction/A2AAslashField.hpp>
 #include <Hadrons/Modules/MContraction/A2AFourQuarkContraction.hpp>
+#include <Hadrons/Modules/MContraction/A2AFourQuarkContractionMT.hpp>
 #include <Hadrons/Modules/MContraction/A2ALoop.hpp>
 #include <Hadrons/Modules/MContraction/A2AMonsterLoop.hpp>
 #include <Hadrons/Modules/MContraction/A2AVWsetup.hpp>

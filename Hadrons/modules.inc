@@ -7,6 +7,7 @@ modules_cc =\
   Modules/MAction/ZMobiusDWF.cc \
   Modules/MContraction/A2AAslashField.cc \
   Modules/MContraction/A2AFourQuarkContraction.cc \
+  Modules/MContraction/A2AFourQuarkContractionMT.cc \
   Modules/MContraction/A2ALoop.cc \
   Modules/MContraction/A2AMonsterLoop.cc \
   Modules/MContraction/A2AVWsetup.cc \
@@ -103,6 +104,7 @@ modules_hpp =\
   Modules/MAction/ZMobiusDWF.hpp \
   Modules/MContraction/A2AAslashField.hpp \
   Modules/MContraction/A2AFourQuarkContraction.hpp \
+  Modules/MContraction/A2AFourQuarkContractionMT.hpp \
   Modules/MContraction/A2ALoop.hpp \
   Modules/MContraction/A2AMonsterLoop.hpp \
   Modules/MContraction/A2AVWsetup.hpp \
