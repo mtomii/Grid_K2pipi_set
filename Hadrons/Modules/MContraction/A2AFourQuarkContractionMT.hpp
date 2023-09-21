@@ -190,12 +190,21 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int vol3d = mat1.size() / nt;
   assert ( mat1.size() == mat2.size() );
 
-  std::vector<Scalar_v> corr0(nt,Zero());
-  std::vector<std::vector<Scalar_v> > corr(nt,Zero());
+  std::vector<Complex> corr0(nt,0.,0.);
+  std::vector<std::vector<Complex> > corr(nt,corr0);
   int num_corr = gamma1_.size() * types_.size();
   corr.assign(num_corr,corr0);
 
-  /*  
+  /*
+  for(int ig=0;ig<gamma1_.size();ig++){
+  for(int isc=0;isc<types_.size();isc++){
+    std::vector<Gamma::Algebra> gvec1 = gamma1_[ig];
+    std::vector<Gamma::Algebra> gvec2 = gamma2_[ig];
+    int type = types_[isc];
+    for(int igg=0;igg<gvec1.size();igg++) {
+      
+    }
+  }}
   thread_for(ix,mat1.size(),{
     for(int ix=0;ix<MFrvol;ix++){
       int sv = ix+vol3d*it;
