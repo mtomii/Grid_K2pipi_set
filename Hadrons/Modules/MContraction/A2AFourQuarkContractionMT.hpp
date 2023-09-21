@@ -196,7 +196,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int num_corr = gamma1_.size() * types_.size();
   corr.assign(num_corr,corr0);
 
-  //*
+  /*
   thread_for(ix,vol3d{
     for(int ig=0;ig<gamma1_.size();ig++){
     for(int isc=0;isc<types_.size();isc++){
