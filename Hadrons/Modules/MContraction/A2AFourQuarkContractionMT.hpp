@@ -278,7 +278,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   });
 
   ComplexD C0(0.,0.);
-  CorrelatorResult<ComplexD> corr0;
+  CorrelatorResult corr0;
   corr0.correlator.resize(nt);
   for(int it=0;it<nt;it++){
     corr0.correlator[it] = C0;
