@@ -286,9 +286,9 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     }
   });
 
-  string stem = par().output + "/test";
+  std::string stem = par().output + "/test";
   for(int itg=0;itg<num_corr;itg++){
-    string name = "d" + to_string(itg);
+    std::string name = "d" + std::to_string(itg);
     saveResult(stem,name,corr[itg]);
   }
 }
