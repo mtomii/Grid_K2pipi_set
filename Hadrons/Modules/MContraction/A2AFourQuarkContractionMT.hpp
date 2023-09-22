@@ -273,6 +273,18 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   Scalar_s C0 = Zero();
   std::vector<Scalar_s> corr0(nt,C0);
   std::vector<std::vector<Scalar_s> > corr(num_corr,corr0);
+  thread_for(ittg,thread_vol,{
+    int ig = ittg % gamma1_.size();
+    int itt  = int(ittg / gamma1_.size());
+    int isct = itt % types_.size();
+    int it   = int(itt / types_.size());
+    int itg = ig + gamma1_.size() * isct;
+    ExtractBuffer<Scalar_s> extracted(Nsimd);
+    extract(corr_v[it][itg],extracted);
+    for(int isimd=0;isimd<Nsimd;isimd++){
+      corr[it][itg]=corr[it][itg]+extracted[isimd];
+    }
+  });
 }
 
 END_MODULE_NAMESPACE
