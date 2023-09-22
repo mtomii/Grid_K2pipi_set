@@ -183,6 +183,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   typedef typename FImpl::SiteSpinor vobj;
   typedef typename vobj::vector_type vector_type;
   typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
+  typedef iSpinMatrix<vector_type> SpinMatrix_v;
+  typedef iColourMatrix<vector_type> ColourMatrix_v;
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
 
@@ -221,6 +223,43 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
       for(int igg=0;igg<gvec1.size();igg++){
 	SpinColourMatrix_v WM1 = mat1[ix] * Gamma(gvec1[igg]);
 	SpinColourMatrix_v WM2 = mat2[ix] * Gamma(gvec2[igg]);
+	Scalar_v val = Zero();
+	if ( isct == 0 ) {
+	  val = trace(WM1) * trace(WM2);
+	} else if ( isct == 1 ) {
+	  for (s1=0;s1<Ns;++s1)
+	  for (s2=0;s2<Ns;++s2)
+	  for (c1=0;c1<Nc;++c1)
+	  for (c2=0;c2<Nc;++c2){
+	    val()()() += WM1()(s1,s2)(c1,c2) * WM2()(s2,s1)(c2,c1);
+	  }
+	} else if ( isct == 2 ) {
+	  ColourMatrix_v CM1 = Zero();
+	  ColourMatrix_v CM2 = Zero();
+	  for (s1=0;s1<Ns;++s1)
+	  for (c1=0;c1<Nc;++c1)
+	  for (c2=0;c2<Nc;++c2){
+	    CM1()()(c1,c2) += WM1()(s1,s1)(c1,c2);
+	    CM2()()(c1,c2) += WM2()(s1,s1)(c1,c2);
+	  }
+	  for (c1=0;c1<Nc;++c1)
+	  for (c2=0;c2<Nc;++c2){
+	    val += CM1()()(c1,c2) * CM2()()(c2,c1);
+	  }
+	} else if ( isct == 3 ) {
+	  SpinMatrix_v SM1 = Zero();
+	  SpinMatrix_v SM2 = Zero();
+	  for (s1=0;s1<Ns;++s1)
+	  for (s2=0;s2<Ns;++s2)
+	  for (c1=0;c1<Nc;++c1){
+	    SM1()(s1,s2)() += WM1()(s1,s2)(c1,c1);
+	    SM2()(s1,s2)() += WM2()(s1,s2)(c1,c1);
+	  }
+	  for (s1=0;s1<Ns;++s1)
+	  for (s2=0;s2<Ns;++s2){
+	    val += SM1()(s1,s2)() * SM2()(s2,s1)();
+	  }
+	}
       }
     }
   });
