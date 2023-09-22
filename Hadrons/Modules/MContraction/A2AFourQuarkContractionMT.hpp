@@ -49,6 +49,7 @@ public:
 				    int, ntmat2,
 				    int, indent1,
 				    int, indent2,
+                                    std::string, field,
 				    std::string, sctypes,
                                     std::string, output,
                                     std::string, mat1,
@@ -197,6 +198,9 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   typedef iSinglet<vector_type> Scalar_v;
   typedef iSinglet<scalar_type> Scalar_s;
 
+  auto &field = envGet(std::vector<FermionField>, par().field);
+  GridBase *grid = field[0].Grid();
+
   auto &mat1    = envGet(std::vector<SpinColourMatrix_v>, par().mat1);
   auto &mat2    = envGet(std::vector<SpinColourMatrix_v>, par().mat2);
   auto &ntmat1  = par().ntmat1;
@@ -204,7 +208,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   auto &indent1 = par().indent1;
   auto &indent2 = par().indent2;
 
-  const int Nsimd = 4;
+  const int Nsimd = grid->Nsimd();
 
   int nt = ntmat2 - indent2;
   if ( nt > ntmat1 - indent1 ) nt = ntmat1 - indent1;
@@ -293,10 +297,10 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     }
   });
 
-  for(i=0;i<thread_vol;i++){
-    int ic = i % num_corr;
-    int it = int(i / num_corr);
-    CartesianCommunicator::GlobalSum(corr[it][ic]);
+  for(int i=0;i<thread_vol;i++){
+    int it = i % nt;
+    int itg = int(i / nt);
+    grid->GlobalSum(corr[itg][it]);
   }
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
