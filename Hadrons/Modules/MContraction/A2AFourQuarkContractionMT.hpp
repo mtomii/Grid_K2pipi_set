@@ -89,8 +89,11 @@ MODULE_REGISTER_TMP(A2AFourQuarkContractionMT, TA2AFourQuarkContractionMT<FIMPL>
 class CorrelatorResult: Serializable
 {
 public:
+  typedef typename FImpl::SiteSpinor vobj;
+  typedef typename vobj::scalar_type scalar_type;
+  typedef iSinglet<scalar_type> Scalar_s;
   GRID_SERIALIZABLE_CLASS_MEMBERS(CorrelatorResult,
-				  std::vector<ComplexD>, correlator);
+				  std::vector<Scalar_s>, correlator);
 };
 
 
@@ -279,7 +282,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   });
 
   Scalar_s C0 = Zero();
-  CorrelatorResult<Scalar_s> corr0(nt,C0);
+  CorrelatorResult<Scalar_s> corr0;
+  corr0.correlator.resize(nt, 0. );
   std::vector<CorrelatorResult> corr(num_corr,corr0);
   thread_for(ittg,thread_vol,{
     int ig = ittg % gamma1_.size();
