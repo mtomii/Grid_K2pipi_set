@@ -303,11 +303,16 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     grid->GlobalSum(corr[itg][it]);
   }
   */
+  std::cout << "OAA" << std::endl;
   grid->GlobalSumVector(&corr[0][0],thread_vol);
 
+  std::cout << "OBB" << std::endl;
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
+  std::cout << "OCC" << std::endl;
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
+  std::cout << "ODD" << std::endl;
   ResultWriter writer(filename);
+  std::cout << "OEE" << std::endl;
 
   std::string stem = par().output + "/test";
   for(int itg=0;itg<num_corr;itg++){
