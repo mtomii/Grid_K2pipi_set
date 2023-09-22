@@ -311,19 +311,21 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   std::cout << "OCC" << std::endl;
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
   std::cout << "ODD" << std::endl;
-  ResultWriter writer(filename);
-  std::cout << "OEE" << std::endl;
+  if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
+    ResultWriter writer(filename);
+    std::cout << "OEE" << std::endl;
 
-  std::string stem = par().output + "/test";
-  for(int itg=0;itg<num_corr;itg++){
-    std::cout << "OOO" << std::endl;
-    CorrelatorResult out;
-    std::cout << "AAA" << std::endl;
-    out.correlator = corr[itg];
-    std::cout << "BBB" << std::endl;
-    std::string dataSet = "d" + std::to_string(itg);
-    std::cout << "CCC" << std::endl;
-    write(writer, dataSet, out);
+    std::string stem = par().output + "/test";
+    for(int itg=0;itg<num_corr;itg++){
+      std::cout << "OOO" << std::endl;
+      CorrelatorResult out;
+      std::cout << "AAA" << std::endl;
+      out.correlator = corr[itg];
+      std::cout << "BBB" << std::endl;
+      std::string dataSet = "d" + std::to_string(itg);
+      std::cout << "CCC" << std::endl;
+      write(writer, dataSet, out);
+    }
   }
 }
 
