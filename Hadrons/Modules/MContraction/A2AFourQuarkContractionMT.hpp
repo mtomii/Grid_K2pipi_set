@@ -311,6 +311,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 
   std::string stem = par().output + "/test";
   for(int itg=0;itg<num_corr;itg++){
+    std::cout << "OOO" << std::endl;
     CorrelatorResult out;
     std::cout << "AAA" << std::endl;
     out.correlator = corr[itg];
