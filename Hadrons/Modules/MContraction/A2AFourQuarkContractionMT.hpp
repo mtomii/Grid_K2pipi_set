@@ -219,8 +219,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     for(int ix3d=0;ix3d<vol3d;ix3d++){
       int ix  = ix3d + vol3d*it;
       for(int igg=0;igg<gvec1.size();igg++){
-	SpinColourMatrix_v WM1 = mat1[ix] * gvec1[igg];
-	SpinColourMatrix_v WM2 = mat2[ix] * gvec2[igg];
+	SpinColourMatrix_v WM1 = mat1[ix] * Gamma(gvec1[igg]);
+	SpinColourMatrix_v WM2 = mat2[ix] * Gamma(gvec2[igg]);
       }
     }
   });
