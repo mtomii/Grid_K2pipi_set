@@ -265,7 +265,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	    val()()() += SM1()(s1,s2)() * SM2()(s2,s1)();
 	  }
 	}
-	corr[it][itg]()()() += val()()();
+	corr_v[it][itg]()()() += val()()();
       }// igg
     }// ix3d
   });
