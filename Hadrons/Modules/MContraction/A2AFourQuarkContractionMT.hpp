@@ -296,15 +296,15 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
       corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
   });
-  /*
+  std::cout << "OAA" << std::endl;
   for(int i=0;i<thread_vol;i++){
     int it = i % nt;
     int itg = int(i / nt);
     grid->GlobalSum(corr[itg][it]);
   }
+  /*
   */
-  std::cout << "OAA" << std::endl;
-  grid->GlobalSumVector(&corr[0][0],thread_vol);
+  //grid->GlobalSumVector(&corr[0][0],thread_vol);
 
   std::cout << "OBB" << std::endl;
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
