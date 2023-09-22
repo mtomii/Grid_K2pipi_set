@@ -182,11 +182,13 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 {
   typedef typename FImpl::SiteSpinor vobj;
   typedef typename vobj::vector_type vector_type;
+  typedef typename vobj::scalar_type scalar_type;
   typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
   typedef iSpinMatrix<vector_type> SpinMatrix_v;
   typedef iColourMatrix<vector_type> ColourMatrix_v;
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
+  typedef iSinglet<scalar_type> Scalar_s;
 
   auto &mat1    = envGet(std::vector<SpinColourMatrix_v>, par().mat1);
   auto &mat2    = envGet(std::vector<SpinColourMatrix_v>, par().mat2);
@@ -195,17 +197,18 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   auto &indent1 = par().indent1;
   auto &indent2 = par().indent2;
 
+  const int Nsimd = 4;
+
   int nt = ntmat2 - indent2;
   if ( nt > ntmat1 - indent1 ) nt = ntmat1 - indent1;
 
   int vol3d = mat1.size() / ntmat1;
   assert ( vol3d == mat2.size() / ntmat2 );
 
-  Complex C0(0.,0.);
-  std::vector<Complex> corr0(nt,C0);
-  std::vector<std::vector<Complex> > corr(nt,corr0);
+  Scalar_v Cv0(0.,0.);
+  std::vector<Scalar_v> corr_v0(nt,Cv0);
   int num_corr = gamma1_.size() * types_.size();
-  corr.assign(num_corr,corr0);
+  std::vector<std::vector<Scalar_v> > corr_v(num_corr,corr_v0);
 
   int thread_vol = nt * gamma1_.size() * types_.size();
 
@@ -216,13 +219,15 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     int it   = int(itt / types_.size());
     int it1 = it + indent1;
     int it2 = it + indent2;
+    int itg = ig + gamma1_.size() * isct;
     std::vector<Gamma::Algebra> gvec1 = gamma1_[ig];
     std::vector<Gamma::Algebra> gvec2 = gamma2_[ig];
     for(int ix3d=0;ix3d<vol3d;ix3d++){
-      int ix  = ix3d + vol3d*it;
+      int ix1  = ix3d + vol3d*it1;
+      int ix2  = ix3d + vol3d*it2;
       for(int igg=0;igg<gvec1.size();igg++){
-	SpinColourMatrix_v WM1 = mat1[ix] * Gamma(gvec1[igg]);
-	SpinColourMatrix_v WM2 = mat2[ix] * Gamma(gvec2[igg]);
+	SpinColourMatrix_v WM1 = mat1[ix1] * Gamma(gvec1[igg]);
+	SpinColourMatrix_v WM2 = mat2[ix2] * Gamma(gvec2[igg]);
 	Scalar_v val = Zero();
 	if ( isct == 0 ) {
 	  val = trace(WM1) * trace(WM2);
@@ -260,9 +265,14 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	    val()()() += SM1()(s1,s2)() * SM2()(s2,s1)();
 	  }
 	}
-      }
-    }
+	corr[it][itg]()()() += val()()();
+      }// igg
+    }// ix3d
   });
+
+  Scalar_s C0 = Zero();
+  std::vector<Scalar_s> corr0(nt,C0);
+  std::vector<std::vector<Scalar_s> > corr(num_corr,corr0);
 }
 
 END_MODULE_NAMESPACE
