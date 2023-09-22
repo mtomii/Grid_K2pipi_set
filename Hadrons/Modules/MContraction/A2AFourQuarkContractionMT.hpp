@@ -86,6 +86,14 @@ private:
 
 MODULE_REGISTER_TMP(A2AFourQuarkContractionMT, TA2AFourQuarkContractionMT<FIMPL>, MContraction);
 
+class CorrelatorResult: Serializable
+{
+public:
+  GRID_SERIALIZABLE_CLASS_MEMBERS(CorrelatorResult,
+				  std::vector<ComplexD>, correlator);
+};
+
+
 /******************************************************************************
  *                 TA2AFourQuarkContractionMT implementation                  *
  ******************************************************************************/
@@ -271,8 +279,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   });
 
   Scalar_s C0 = Zero();
-  std::vector<Scalar_s> corr0(nt,C0);
-  std::vector<std::vector<Scalar_s> > corr(num_corr,corr0);
+  CorrelatorResult<Scalar_s> corr0(nt,C0);
+  std::vector<CorrelatorResult> corr(num_corr,corr0);
   thread_for(ittg,thread_vol,{
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
@@ -282,7 +290,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     ExtractBuffer<Scalar_s> extracted(Nsimd);
     extract(corr_v[itg][it],extracted);
     for(int isimd=0;isimd<Nsimd;isimd++){
-      corr[itg][it]=corr[itg][it]+extracted[isimd];
+      corr[itg].correlator[it]=corr[itg].correlator[it]+extracted[isimd];
     }
   });
 
