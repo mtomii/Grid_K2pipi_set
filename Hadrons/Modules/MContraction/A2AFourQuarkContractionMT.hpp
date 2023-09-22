@@ -244,7 +244,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	  }
 	  for(int c1=0;c1<Nc;++c1)
 	  for(int c2=0;c2<Nc;++c2){
-	    val += CM1()()(c1,c2) * CM2()()(c2,c1);
+	    val()()() += CM1()()(c1,c2) * CM2()()(c2,c1);
 	  }
 	} else if ( isct == 3 ) {
 	  SpinMatrix_v SM1 = Zero();
@@ -257,7 +257,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	  }
 	  for(int s1=0;s1<Ns;++s1)
 	  for(int s2=0;s2<Ns;++s2){
-	    val += SM1()(s1,s2)() * SM2()(s2,s1)();
+	    val()()() += SM1()(s1,s2)() * SM2()(s2,s1)();
 	  }
 	}
       }
