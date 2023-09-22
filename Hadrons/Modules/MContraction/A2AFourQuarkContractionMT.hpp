@@ -298,7 +298,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   });
 
   for(int it=0;it<nt;it++){
-    CartesianCommunicator::GlobalSumVector(&corr[it].correlator,thread_vol);
+    CartesianCommunicator::GlobalSumVector(&(corr[it].correlator),thread_vol);
   }
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
