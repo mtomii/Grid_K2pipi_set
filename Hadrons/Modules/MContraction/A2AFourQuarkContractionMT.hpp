@@ -207,7 +207,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 
   int thread_vol = nt * gamma1_.size() * types_.size();
 
-  thread_for(ittg,thread_vol{
+  thread_for(ittg,thread_vol,{
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
     int isct = itt % types_.size();
