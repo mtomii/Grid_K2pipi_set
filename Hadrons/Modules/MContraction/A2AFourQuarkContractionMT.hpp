@@ -295,8 +295,9 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     for(int isimd=0;isimd<Nsimd;isimd++){
       corr[itg].correlator[it]=corr[itg].correlator[it]+extracted[isimd];
     }
-    //CartesianCommunicator::GlobalSum(corr[itg].correlator[it]);
   });
+
+  CartesianCommunicator::GlobalSumVector(&corr,thread_vol);
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
