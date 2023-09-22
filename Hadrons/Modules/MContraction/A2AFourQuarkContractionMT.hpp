@@ -286,10 +286,14 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     }
   });
 
+  std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
+  LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
+  ResultWriter writer(filename);
+
   std::string stem = par().output + "/test";
   for(int itg=0;itg<num_corr;itg++){
-    std::string name = "d" + std::to_string(itg);
-    saveResult(stem,name,corr[itg]);
+    std::string dataSet = "d" + std::to_string(itg);
+    write(writer, dataSet, corr[itg]);
   }
 }
 
