@@ -296,12 +296,14 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
       corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
   });
-
+  /*
   for(int i=0;i<thread_vol;i++){
     int it = i % nt;
     int itg = int(i / nt);
     grid->GlobalSum(corr[itg][it]);
   }
+  */
+  grid->GlobalSumVector(&corr[0][0],thread_vol);
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
