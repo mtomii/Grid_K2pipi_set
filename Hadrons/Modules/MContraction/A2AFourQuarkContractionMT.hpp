@@ -107,7 +107,7 @@ TA2AFourQuarkContractionMT<FImpl>::TA2AFourQuarkContractionMT(const std::string 
 template <typename FImpl>
 std::vector<std::string> TA2AFourQuarkContractionMT<FImpl>::getInput(void)
 {
-  std::vector<std::string> in = {par().mat1, par().mat2};
+  std::vector<std::string> in = {par().mat1, par().mat2, par().field};
 
   return in;
 }
