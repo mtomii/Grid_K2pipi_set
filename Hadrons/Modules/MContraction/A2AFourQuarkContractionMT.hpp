@@ -227,36 +227,36 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	if ( isct == 0 ) {
 	  val = trace(WM1) * trace(WM2);
 	} else if ( isct == 1 ) {
-	  for (s1=0;s1<Ns;++s1)
-	  for (s2=0;s2<Ns;++s2)
-	  for (c1=0;c1<Nc;++c1)
-	  for (c2=0;c2<Nc;++c2){
+	  for(int s1=0;s1<Ns;++s1)
+	  for(int s2=0;s2<Ns;++s2)
+	  for(int c1=0;c1<Nc;++c1)
+	  for(int c2=0;c2<Nc;++c2){
 	    val()()() += WM1()(s1,s2)(c1,c2) * WM2()(s2,s1)(c2,c1);
 	  }
 	} else if ( isct == 2 ) {
 	  ColourMatrix_v CM1 = Zero();
 	  ColourMatrix_v CM2 = Zero();
-	  for (s1=0;s1<Ns;++s1)
-	  for (c1=0;c1<Nc;++c1)
-	  for (c2=0;c2<Nc;++c2){
+	  for(int s1=0;s1<Ns;++s1)
+	  for(int c1=0;c1<Nc;++c1)
+	  for(int c2=0;c2<Nc;++c2){
 	    CM1()()(c1,c2) += WM1()(s1,s1)(c1,c2);
 	    CM2()()(c1,c2) += WM2()(s1,s1)(c1,c2);
 	  }
-	  for (c1=0;c1<Nc;++c1)
-	  for (c2=0;c2<Nc;++c2){
+	  for(int c1=0;c1<Nc;++c1)
+	  for(int c2=0;c2<Nc;++c2){
 	    val += CM1()()(c1,c2) * CM2()()(c2,c1);
 	  }
 	} else if ( isct == 3 ) {
 	  SpinMatrix_v SM1 = Zero();
 	  SpinMatrix_v SM2 = Zero();
-	  for (s1=0;s1<Ns;++s1)
-	  for (s2=0;s2<Ns;++s2)
-	  for (c1=0;c1<Nc;++c1){
+	  for(int s1=0;s1<Ns;++s1)
+	  for(int s2=0;s2<Ns;++s2)
+	  for(int c1=0;c1<Nc;++c1){
 	    SM1()(s1,s2)() += WM1()(s1,s2)(c1,c1);
 	    SM2()(s1,s2)() += WM2()(s1,s2)(c1,c1);
 	  }
-	  for (s1=0;s1<Ns;++s1)
-	  for (s2=0;s2<Ns;++s2){
+	  for(int s1=0;s1<Ns;++s1)
+	  for(int s2=0;s2<Ns;++s2){
 	    val += SM1()(s1,s2)() * SM2()(s2,s1)();
 	  }
 	}
