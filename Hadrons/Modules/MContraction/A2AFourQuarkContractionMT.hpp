@@ -278,12 +278,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   });
 
   ComplexD C0(0.,0.);
-  CorrelatorResult corr0;
-  corr0.correlator.resize(nt);
-  for(int it=0;it<nt;it++){
-    corr0.correlator[it] = C0;
-  }
-  std::vector<CorrelatorResult> corr(num_corr,corr0);
+  std::vector<ComplexD> corr0(nt,C0);
+  std::vector<std::vector<ComplexD> > corr(num_corr,corr0);
   thread_for(ittg,thread_vol,{
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
@@ -293,14 +289,11 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     ExtractBuffer<Scalar_s> extracted(Nsimd);
     extract(corr_v[itg][it],extracted);
     for(int isimd=0;isimd<Nsimd;isimd++){
-      corr[itg].correlator[it]=corr[itg].correlator[it]+extracted[isimd];
+      corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
   });
 
-  for(int it=0;it<nt;it++)
-  for(int itg=0;itg<num_corr;itg++){
-    CartesianCommunicator::GlobalSum(corr[it].correlator[itg]);
-  }
+  CartesianCommunicator::GlobalSumVector(&corr,thread_vol);
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
@@ -308,8 +301,10 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 
   std::string stem = par().output + "/test";
   for(int itg=0;itg<num_corr;itg++){
+    CorrelatorResult out;
+    out.correlator = corr[itg];
     std::string dataSet = "d" + std::to_string(itg);
-    write(writer, dataSet, corr[itg]);
+    write(writer, dataSet, out);
   }
 }
 
