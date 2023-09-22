@@ -205,7 +205,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int vol3d = mat1.size() / ntmat1;
   assert ( vol3d == mat2.size() / ntmat2 );
 
-  Scalar_v Cv0(0.,0.);
+  Scalar_v Cv0 = Zero();
   std::vector<Scalar_v> corr_v0(nt,Cv0);
   int num_corr = gamma1_.size() * types_.size();
   std::vector<std::vector<Scalar_v> > corr_v(num_corr,corr_v0);
