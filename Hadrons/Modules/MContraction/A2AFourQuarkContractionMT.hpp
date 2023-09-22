@@ -265,7 +265,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	    val()()() += SM1()(s1,s2)() * SM2()(s2,s1)();
 	  }
 	}
-	corr_v[it][itg]()()() += val()()();
+	corr_v[itg][it]()()() += val()()();
       }// igg
     }// ix3d
   });
@@ -280,11 +280,17 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     int it   = int(itt / types_.size());
     int itg = ig + gamma1_.size() * isct;
     ExtractBuffer<Scalar_s> extracted(Nsimd);
-    extract(corr_v[it][itg],extracted);
+    extract(corr_v[itg][it],extracted);
     for(int isimd=0;isimd<Nsimd;isimd++){
-      corr[it][itg]=corr[it][itg]+extracted[isimd];
+      corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
   });
+
+  string stem = par().output + "/test";
+  for(int itg=0;itg<num_corr;itg++){
+    string name = "d" + to_string(itg);
+    saveResult(stem,name,corr[itg]);
+  }
 }
 
 END_MODULE_NAMESPACE
