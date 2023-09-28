@@ -161,6 +161,10 @@ void TA2AVxPi<FImpl>::execute(void)
   int e1= grid->_slice_nblock[orthogdim];//1
   int e2= grid->_slice_block [orthogdim];//64 must be 4^3
   int stride=grid->_slice_stride[orthogdim];//128
+  std::cout << "rdim: " << rd << std::endl;
+  std::cout << "slice_nblock: " << e1 << std::endl;
+  std::cout << "slice_block: " << e2 << std::endl;
+  std::cout << "slice_stride: " << stride << std::endl;
   int MFrvol = grid->_rdimensions[0]
     *          grid->_rdimensions[1]
     *          grid->_rdimensions[2]
