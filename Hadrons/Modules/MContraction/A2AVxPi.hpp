@@ -182,7 +182,7 @@ void TA2AVxPi<FImpl>::execute(void)
 	for(int n=0;n<e1;n++){
 	for(int b=0;b<e2;b++){
 	  int ss = so+n*stride+b;
-	  int sv = b+e2*(n+e1*(it+stepsize*i));
+	  int sv = b+e2*(n+e1*(it+stepsize*j));
 	  auto left = lhs_v[ss];
 	  for(int s1=0;s1<Ns;s1++)
 	  for(int c1=0;c1<Nc;c1++){
