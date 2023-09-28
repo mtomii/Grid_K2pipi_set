@@ -223,8 +223,8 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 
   int thread_vol = nt * gamma1_.size() * types_.size();
 
-  //thread_for(ittg,thread_vol,{
-  for(int ittg=0;ittg<thread_vol;ittg++){
+  thread_for(ittg,thread_vol,{
+  //for(int ittg=0;ittg<thread_vol;ittg++){
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
     int isct = itt % types_.size();
@@ -280,14 +280,14 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	corr_v[itg][it]()()() += val()()();
       }// igg
     }// ix3d
-  }
-  //});
+    //}
+  });
 
   ComplexD C0(0.,0.);
   std::vector<ComplexD> corr0(nt,C0);
   std::vector<std::vector<ComplexD> > corr(num_corr,corr0);
-  //thread_for(ittg,thread_vol,{
-  for(int ittg=0;ittg<thread_vol;ittg++){
+  thread_for(ittg,thread_vol,{
+  //for(int ittg=0;ittg<thread_vol;ittg++){
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
     int isct = itt % types_.size();
@@ -298,16 +298,13 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     for(int isimd=0;isimd<Nsimd;isimd++){
       corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
-  }
-  //});
+    //}
+  });
   for(int i=0;i<thread_vol;i++){
     int it = i % nt;
     int itg = int(i / nt);
     grid->GlobalSum(corr[itg][it]);
   }
-  /*
-  */
-  //grid->GlobalSumVector(&corr[0][0],thread_vol);
 
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
