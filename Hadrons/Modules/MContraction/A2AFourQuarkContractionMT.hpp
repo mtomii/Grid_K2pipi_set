@@ -296,7 +296,6 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
       corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
   });
-  std::cout << "OAA" << std::endl;
   for(int i=0;i<thread_vol;i++){
     int it = i % nt;
     int itg = int(i / nt);
@@ -306,24 +305,16 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   */
   //grid->GlobalSumVector(&corr[0][0],thread_vol);
 
-  std::cout << "OBB" << std::endl;
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
-  std::cout << "OCC" << std::endl;
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
-  std::cout << "ODD" << std::endl;
   if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
     ResultWriter writer(filename);
-    std::cout << "OEE" << std::endl;
 
     std::string stem = par().output + "/test";
     for(int itg=0;itg<num_corr;itg++){
-      std::cout << "OOO" << std::endl;
       CorrelatorResult out;
-      std::cout << "AAA" << std::endl;
       out.correlator = corr[itg];
-      std::cout << "BBB" << std::endl;
       std::string dataSet = "d" + std::to_string(itg);
-      std::cout << "CCC" << std::endl;
       write(writer, dataSet, out);
     }
   }

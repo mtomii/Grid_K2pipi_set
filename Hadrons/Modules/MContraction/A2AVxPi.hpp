@@ -128,6 +128,8 @@ void TA2AVxPi<FImpl>::execute(void)
   int stepsize = par().delt_max - par().delt_min + 1;
   int v_os  = par().t_mes_base + par().delt_min;
 
+  grid->show_decomposition();
+
   int orthogdim = 3;
 
   assert( grid->_ldimensions[orthogdim] >= stepsize );
