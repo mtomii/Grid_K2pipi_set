@@ -153,8 +153,8 @@ void TA2AVxW<FImpl>::execute(void)
   mat.assign(vol,Zero());
   std::cout << "Allocated " << mat.size() << " spin-color matrices for V x W" << std::endl;
   thread_for(ix,vol,{
-    ixL = ix + indentL * e1 * e2;
-    ixR = ix + indentR * e1 * e2;
+    int ixL = ix + indentL * e1 * e2;
+    int ixR = ix + indentR * e1 * e2;
     for(int i=0;i<N_i;i++){
       int svL = ixL+MFrvolL*i;
       int svR = ixR+MFrvolR*i;
