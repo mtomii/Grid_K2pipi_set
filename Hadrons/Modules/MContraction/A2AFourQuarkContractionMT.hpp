@@ -224,7 +224,6 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   int thread_vol = nt * gamma1_.size() * types_.size();
 
   thread_for(ittg,thread_vol,{
-  //for(int ittg=0;ittg<thread_vol;ittg++){
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
     int isct = itt % types_.size();
@@ -280,14 +279,12 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 	corr_v[itg][it]()()() += val()()();
       }// igg
     }// ix3d
-    //}
   });
 
   ComplexD C0(0.,0.);
   std::vector<ComplexD> corr0(nt,C0);
   std::vector<std::vector<ComplexD> > corr(num_corr,corr0);
   thread_for(ittg,thread_vol,{
-  //for(int ittg=0;ittg<thread_vol;ittg++){
     int ig = ittg % gamma1_.size();
     int itt  = int(ittg / gamma1_.size());
     int isct = itt % types_.size();
@@ -298,7 +295,6 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     for(int isimd=0;isimd<Nsimd;isimd++){
       corr[itg][it]=corr[itg][it]+extracted[isimd];
     }
-    //}
   });
   for(int i=0;i<thread_vol;i++){
     int it = i % nt;
@@ -309,6 +305,11 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
   if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
+    if (CreateDirectory(par().output.c_str(), NULL) ||
+	ERROR_ALREADY_EXISTS == GetLastError())
+      {
+      }
+
     ResultWriter writer(filename);
 
     std::vector<std::string> gam1 = strToVec<std::string>(par().gammas1);
