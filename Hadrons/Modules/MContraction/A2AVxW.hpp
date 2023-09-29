@@ -130,12 +130,10 @@ void TA2AVxW<FImpl>::execute(void)
   auto &leftV  = envGet(std::vector<SpinColourVector_v>, par().left);
   auto &indentL = par().indentL;
   auto &indentR = par().indentR;
-  auto &field = envGet(std::vector<FermionField>, par().field);
-  GridBase *grid = field[0].Grid();
-  int e1= grid->_slice_nblock[orthogdim];//1
-  int e2= grid->_slice_block [orthogdim];//64 must be 4^3
 
   int orthogdim = 3;
+  int e1= grid->_slice_nblock[orthogdim];//1
+  int e2= grid->_slice_block [orthogdim];//64 must be 4^3
 
   int N_i = par().Nmode;
 
