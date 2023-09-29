@@ -118,8 +118,6 @@ void TA2APixW<FImpl>::execute(void)
   typedef iSpinColourMatrix<vector_type> SpinColourMatrix_v;
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
-  //typedef typename vobj::scalar_type scalar_type;
-  //auto &loop  = envGet(PropagatorField, getName());
   auto &vec   = envGet(std::vector<SpinColourVector_v>, getName());
   auto &rightW = envGet(std::vector<FermionField>, par().right);
   auto &meson_f = envGet(EigenDiskVector<Complex>, par().mes);

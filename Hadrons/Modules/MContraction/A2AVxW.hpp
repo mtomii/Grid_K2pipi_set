@@ -46,6 +46,9 @@ class A2AVxWPar: Serializable
 public:
     GRID_SERIALIZABLE_CLASS_MEMBERS(A2AVxWPar,
 				    int, Nmode,
+				    int, indentL,
+				    int, indentR,
+                                    std::string, field,
                                     std::string, right,
 				    std::string, left);
 };
@@ -84,7 +87,7 @@ TA2AVxW<FImpl>::TA2AVxW(const std::string name)
 template <typename FImpl>
 std::vector<std::string> TA2AVxW<FImpl>::getInput(void)
 {
-  std::vector<std::string> in = {par().left, par().right};
+  std::vector<std::string> in = {par().left, par().right, par().field};
 
   return in;
 }
@@ -119,28 +122,49 @@ void TA2AVxW<FImpl>::execute(void)
   typedef iSpinColourVector<vector_type> SpinColourVector_v;
   typedef iSinglet<vector_type> Scalar_v;
 
+  auto &field = envGet(std::vector<FermionField>, par().field);
+  GridBase *grid = field[0].Grid();
+
   auto &mat    = envGet(std::vector<SpinColourMatrix_v>, getName());
   auto &rightW = envGet(std::vector<SpinColourVector_v>, par().right);
   auto &leftV  = envGet(std::vector<SpinColourVector_v>, par().left);
+  auto &indentL = par().indentL;
+  auto &indentR = par().indentR;
+  auto &field = envGet(std::vector<FermionField>, par().field);
+  GridBase *grid = field[0].Grid();
+  int e1= grid->_slice_nblock[orthogdim];//1
+  int e2= grid->_slice_block [orthogdim];//64 must be 4^3
 
   int orthogdim = 3;
 
   int N_i = par().Nmode;
 
   std::cout << "## Vsize: " << leftV.size() << ", Wsize: " << rightW.size() << std::endl;
-  assert ( leftV.size() == rightW.size() );
-  int MFrvol = leftV.size() / N_i;
+  int MFrvolL = int(leftV.size() / N_i);
+  int MFrvolR = int(rightW.size() / N_i);
+  assert ( leftV.size() % N_i == 0 );
+  assert ( rightW.size() % N_i == 0 );
+  int ntL = int( MFrvolL / e1 / e2 );
+  int ntR = int( MFrvolR / e1 / e2 );
+  assert( ntL - indentL == ntR - indentR );
+  assert ( MFrvolL % (e1*e2) == 0 );
+  assert ( MFrvolR % (e1*e2) == 0 );
 
-  mat.assign(MFrvol,Zero());
+  int vol = ( ntL - indentL ) * e1 * e2;
+
+  mat.assign(vol,Zero());
   std::cout << "Allocated " << mat.size() << " spin-color matrices for V x W" << std::endl;
-  thread_for(ix,MFrvol,{
+  thread_for(ix,vol,{
+    ixL = ix + indentL * e1 * e2;
+    ixR = ix + indentR * e1 * e2;
     for(int i=0;i<N_i;i++){
-      int sv = ix+MFrvol*i;
+      int svL = ixL+MFrvolL*i;
+      int svR = ixR+MFrvolR*i;
       for(int s1=0;s1<Ns;s1++)
       for(int s2=0;s2<Ns;s2++)
       for(int c1=0;c1<Nc;c1++)
       for(int c2=0;c2<Nc;c2++){
-	mat[ix]()(s1,s2)(c1,c2) += leftV[sv]()(s1)(c1) * rightW[sv]()(s2)(c2);
+	mat[ix]()(s1,s2)(c1,c2) += leftV[svL]()(s1)(c1) * rightW[svR]()(s2)(c2);
       }
     }
   });
