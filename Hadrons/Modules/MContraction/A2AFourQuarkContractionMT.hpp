@@ -302,7 +302,7 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
     grid->GlobalSum(corr[itg][it]);
   }
 
-  std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
+  std::string filename = par().output + "/" + RESULT_FILE_NAME(getName(), vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
   if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
 
@@ -310,7 +310,6 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
 
     std::vector<std::string> gam1 = strToVec<std::string>(par().gammas1);
     std::vector<std::string> gam2 = strToVec<std::string>(par().gammas2);
-    std::string stem = par().output + "/test";
     for(int itg=0;itg<num_corr;itg++){
       CorrelatorResult out;
       int ig = itg % gamma1_.size();
