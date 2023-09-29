@@ -311,11 +311,15 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
     ResultWriter writer(filename);
 
+    std::vector<std::string> gam1 = strToVec<std::string>(par().gammas1);
+    std::vector<std::string> gam2 = strToVec<std::string>(par().gammas2);
     std::string stem = par().output + "/test";
     for(int itg=0;itg<num_corr;itg++){
       CorrelatorResult out;
+      int ig = itg % gamma1_.size();
+      int isct = int( itg / gamma1_.size() );
       out.correlator = corr[itg];
-      std::string dataSet = "d" + std::to_string(itg);
+      std::string dataSet = getName() + "_" + gam1[ig] + "_" + gam2[ig] + "_sort" + std::to_string(isct);
       write(writer, dataSet, out);
     }
   }
