@@ -305,10 +305,6 @@ void TA2AFourQuarkContractionMT<FImpl>::execute(void)
   std::string filename = par().output + "/" + RESULT_FILE_NAME("test", vm().getTrajectory());
   LOG(Message) << "Saving correlator to '" << filename << "'" << std::endl;
   if( grid->_lstart[0] + grid->_lstart[1] + grid->_lstart[2] + grid->_lstart[3] == 0 ) {
-    if (CreateDirectory(par().output.c_str(), NULL) ||
-	ERROR_ALREADY_EXISTS == GetLastError())
-      {
-      }
 
     ResultWriter writer(filename);
 
