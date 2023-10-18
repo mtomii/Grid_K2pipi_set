@@ -168,6 +168,11 @@ void TA2ACoarseGrid<FImpl>::execute(void)
       std::vector<Lattice<SiteSpinorSet> > 
 	bvec(0,envGetGrid(Lattice<SiteSpinorSet>));
       pokewrite(coarse,bvec);
+    if ( par().binSize == 221 ) {
+      typedef iVector<iVector<iVector<vector_type, Nc>, Ns>, 221 > SiteSpinorSet;
+      std::vector<Lattice<SiteSpinorSet> > 
+	bvec(0,envGetGrid(Lattice<SiteSpinorSet>));
+      pokewrite(coarse,bvec);
     } else if ( par().binSize == 192 ) {
       typedef iVector<iVector<iVector<vector_type, Nc>, Ns>, 192 > SiteSpinorSet;
       std::vector<Lattice<SiteSpinorSet> >
